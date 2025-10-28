@@ -831,6 +831,13 @@
       "room": ""
     }
   ],
-  "camps": [],
-  "campData": {}
+  "camps": [
+    "CP 1"
+  ],
+  "campData": {
+    "CP 1": {
+      "beds": 0,
+      "rooms": 0
+    }
+  }
 }
