@@ -1,16 +1,5 @@
 {
-  "workers": [
-    {
-      "iq": "faizan",
-      "name": "faizan",
-      "camp": "faizan",
-      "company": "faizan",
-      "gender": "faizan",
-      "nationality": "faizan",
-      "sponsor": "faizan",
-      "room": "faizan"
-    }
-  ],
+  "workers": [],
   "camps": [],
   "campData": {}
 }
