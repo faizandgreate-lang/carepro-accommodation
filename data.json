@@ -832,10 +832,15 @@
     }
   ],
   "camps": [
-    "CP 1"
+    "CP 1",
+    "CP 2"
   ],
   "campData": {
     "CP 1": {
+      "beds": 0,
+      "rooms": 0
+    },
+    "CP 2": {
       "beds": 0,
       "rooms": 0
     }
