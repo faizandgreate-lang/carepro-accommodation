@@ -824,8 +824,7 @@
   "camps": [
     "CP 1",
     "CP 2",
-    "CP 3",
-    "CP1"
+    "CP 3"
   ],
   "campData": {
     "CP 1": {
@@ -837,10 +836,6 @@
       "rooms": 0
     },
     "CP 3": {
-      "beds": 0,
-      "rooms": 0
-    },
-    "CP1": {
       "beds": 0,
       "rooms": 0
     }
