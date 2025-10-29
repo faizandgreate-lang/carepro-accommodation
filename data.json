@@ -8499,9 +8499,9 @@
       "rooms": 0,
       "meta": {
         "AVAILABLE BEDS": "0",
-        "MALE": "88",
+        "MALE": "89",
         "FEMALE": "0",
-        "TOTAL": "88",
+        "TOTAL": "89",
         "NEW COLUMN": ""
       }
     },
@@ -8527,6 +8527,17 @@
         "NEW COLUMN": ""
       }
     },
+    "fk": {
+      "beds": 0,
+      "rooms": 0,
+      "meta": {
+        "AVAILABLE BEDS": "0",
+        "MALE": "0",
+        "FEMALE": "0",
+        "TOTAL": "0",
+        "NEW COLUMN": ""
+      }
+    },
     "__summaryHeaders": [
       "CAMP",
       "ROOMS",
@@ -8535,7 +8546,6 @@
       "MALE",
       "FEMALE",
       "TOTAL",
-      "NEW COLUMN",
       "NEW COLUMN"
     ]
   }
