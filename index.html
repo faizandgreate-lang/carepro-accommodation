@@ -54,6 +54,11 @@
 
 <div id="editor" class="form hidden">
   <h4>🔧 ADMIN PANEL</h4>
+  <h4>➕ Add Worker Column</h4>
+<label>Column Name: <input type="text" id="newWorkerColName" placeholder="Enter column name"></label>
+<button onclick="addCustomWorkerColumn()">Add Column</button>
+<div id="newColMsg" style="color:green;margin-top:5px;font-weight:600;"></div>
+
   <label>IQAMA: <input id="f_iq"></label>
   <label>Name: <input id="f_name"></label>
   <label>Camp: <input id="f_camp" placeholder="CP 1 / CP 2 / CP 3"></label>
@@ -507,6 +512,35 @@ function verifyMaster() {
     ctrl.classList.add('hidden');
     msg.innerText = "❌ Wrong master password!";
   }
+}
+function addCustomWorkerColumn() {
+  const name = document.getElementById('newWorkerColName').value.trim();
+  const msg = document.getElementById('newColMsg');
+  if (!name) return alert("Enter a column name!");
+  
+  const table = document.querySelector("#tableWrap table");
+  if (!table) {
+    return alert("No worker table found!");
+  }
+
+  // Add header
+  const headerRow = table.tHead.rows[0];
+  const newTh = document.createElement("th");
+  newTh.contentEditable = "true";
+  newTh.innerText = name;
+  headerRow.appendChild(newTh);
+
+  // Add empty cells to all rows
+  for (let r = 0; r < table.tBodies[0].rows.length; r++) {
+    const cell = table.tBodies[0].rows[r].insertCell();
+    cell.contentEditable = "true";
+    cell.innerText = "";
+  }
+
+  // Save column immediately
+  saveWorkerColumns();
+  msg.innerText = `✅ Column "${name}" added!`;
+  document.getElementById('newWorkerColName').value = '';
 }
 
 // initial load
