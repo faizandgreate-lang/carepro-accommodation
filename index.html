@@ -85,7 +85,13 @@
 <div id="campSummary"></div>
 
 <h2>👷 Worker Details</h2>
-<div id="tableWrap"></div>
+<div id="tableWrap"></div><!-- Admin buttons to add/delete/rename worker table columns -->
+<div id="workerColumnControls" class="hidden" style="margin-top:8px;">
+  <button onclick="addWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Column</button>
+  <button onclick="deleteWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">🗑 Delete Column</button>
+  <button onclick="saveWorkerColumns()" style="margin:5px;padding:6px 12px;background:#198754;color:#fff;border:none;border-radius:4px;cursor:pointer;">💾 Save Changes</button>
+</div>
+
 
 <div class="footer">Made with ❤️ by <span>Faizan Khan</span></div>
 
@@ -371,6 +377,51 @@ async function loadData(){
 }
 function renderAll(){updateCampDropdown(); renderTable(); renderClientSummary(); renderCampSummary();}
 function showSelectedCamp(){const s=campSelect.value; if(s) renderTable(s); else renderTable();}
+// ---------- Worker Table Column Functions ----------
+function addWorkerColumn() {
+  if(!isAdmin) return alert("Only admin can add columns.");
+  const table = document.querySelector("#tableWrap table");
+  if(!table) return alert("No worker table found.");
+  const headerRow = table.tHead.rows[0];
+  const newTh = document.createElement("th");
+  newTh.contentEditable = "true";
+  newTh.innerText = "New Column";
+  headerRow.appendChild(newTh);
+  for(let r=0;r<table.tBodies[0].rows.length;r++){
+    const cell = table.tBodies[0].rows[r].insertCell();
+    cell.contentEditable = "true";
+    cell.innerText = "";
+  }
+}
+
+function deleteWorkerColumn() {
+  if(!isAdmin) return alert("Only admin can delete columns.");
+  const table = document.querySelector("#tableWrap table");
+  if(!table) return alert("No worker table found.");
+  const colCount = table.tHead.rows[0].cells.length;
+  if(colCount <= 2) return alert("Cannot delete essential columns.");
+  for(let r=0;r<table.rows.length;r++){
+    table.rows[r].deleteCell(colCount-1);
+  }
+}
+
+function saveWorkerColumns(){
+  if(!isAdmin) return alert("Only admin can save changes.");
+  const table = document.querySelector("#tableWrap table");
+  if(!table) return alert("No table found.");
+  const headers = Array.from(table.tHead.rows[0].cells).map(th => th.innerText.trim());
+  const rows = [];
+  for(let r=0;r<table.tBodies[0].rows.length;r++){
+    const cells = Array.from(table.tBodies[0].rows[r].cells).map(td => td.innerText.trim());
+    rows.push(cells);
+  }
+  // store columns as metadata (safe for future)
+  campData.__workerColumns = {headers, rows};
+  apiSaveData().then(r=>{
+    if(r) alert("✅ Columns saved successfully!");
+    else alert("⚠️ Save failed.");
+  });
+}
 
 // initial load
 loadData();
