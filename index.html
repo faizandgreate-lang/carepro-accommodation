@@ -86,11 +86,6 @@
 
 <h2>👷 Worker Details</h2>
 <div id="tableWrap"></div>
-<div id="workerButtons" class="hidden" style="margin-bottom:15px;">
-  <button onclick="addWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Column</button>
-  <button onclick="deleteWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">🗑 Delete Column</button>
-  <button onclick="saveWorkerDetails()" style="margin:5px;padding:6px 12px;background:#198754;color:#fff;border:none;border-radius:4px;cursor:pointer;">💾 Save Changes</button>
-</div>
 
 <div class="footer">Made with ❤️ by <span>Faizan Khan</span></div>
 
@@ -98,10 +93,10 @@
 const ADMIN_PASSWORD = '12341234';
 let isAdmin = false;
 let workers = [];
-let workerHeaders = ['IQAMA','Name','Camp','Company','Gender','Nationality','Sponsor','Room'];
 let camps = [];
 let campData = {};
 let activeFilters = {};
+let workerExtraCols = []; // store extra columns in worker table
 
 async function apiGetData() {
   try {
@@ -110,130 +105,156 @@ async function apiGetData() {
     return await r.json();
   } catch (e) {
     console.error(e); alert('Error loading data.');
-    return { workers: [], camps: [], campData: {}, workerHeaders: workerHeaders };
+    return { workers: [], camps: [], campData: {} };
   }
 }
 async function apiSaveData() {
   try {
-    const r = await fetch('/api/saveData', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({workers,camps,campData,workerHeaders})});
+    const r = await fetch('/api/saveData', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({workers,camps,campData})});
     const j = await r.json();
     if (!r.ok) throw new Error(j.message||'Save failed');
     return j;
   } catch(e){console.error(e);alert('Error saving data');return null;}
 }
 
-function login(){
-  if(adminPw.value===ADMIN_PASSWORD){
-    isAdmin=true;
-    editor.classList.remove('hidden');
-    loginBox.classList.add('hidden');
-    adminBox.classList.remove('hidden');
-    document.getElementById('workerButtons').classList.remove('hidden');
-    msg.innerText='Admin mode enabled';
-    renderAll();
-  } else alert('❌ Wrong password!');
-}
-function logout(){
-  isAdmin=false;
-  editor.classList.add('hidden');
-  loginBox.classList.remove('hidden');
-  adminBox.classList.add('hidden');
-  document.getElementById('workerButtons').classList.add('hidden');
-  renderAll();
-}
+function login(){if(adminPw.value===ADMIN_PASSWORD){isAdmin=true;editor.classList.remove('hidden');loginBox.classList.add('hidden');adminBox.classList.remove('hidden');msg.innerText='Admin mode enabled';renderAll();}else alert('❌ Wrong password!');}
+function logout(){isAdmin=false;editor.classList.add('hidden');loginBox.classList.remove('hidden');adminBox.classList.add('hidden');renderAll();}
 
-function addWorker(){ 
-  const w = {};
-  workerHeaders.forEach(h=>{
-    const key = h.toLowerCase();
-    const elId = 'f_'+key.replace(/\s/g,'_');
-    const val = document.getElementById(elId)?.value || '';
-    w[h] = val;
+// --- Worker table with extra columns ---
+function renderTable(campFilter=''){
+  let filtered = workers.filter(w => (!campFilter || w.camp === campFilter));
+  Object.keys(activeFilters).forEach(k=>{
+    if(activeFilters[k].length>0){
+      filtered = filtered.filter(w => activeFilters[k].includes((w[k]||'').toString()));
+    }
   });
-  if(!w['IQAMA'] || !w['Name']) return alert("IQAMA and Name required!");
-  workers.push(w);
-  apiSaveData().then(r=>{if(r){msg.innerText="✅ Worker added!";renderAll();}});
-}
 
-function renderWorkerTable(){
-  if(!workerHeaders || workerHeaders.length==0) return;
-  let html='<table id="workerTable"><thead><tr>';
-  workerHeaders.forEach(h=>{
-    html+=`<th ${isAdmin ? 'contenteditable="true"' : ''}>${h}</th>`;
+  let html = `<table id="workerTable"><thead><tr>
+    <th>#</th><th>IQAMA</th><th>Name</th>
+    <th class='filter-arrow' onclick="toggleDropdown('camp')">Camp<div id='drop-camp' class='dropdown'></div></th>
+    <th class='filter-arrow' onclick="toggleDropdown('company')">Company<div id='drop-company' class='dropdown'></div></th>
+    <th class='filter-arrow' onclick="toggleDropdown('gender')">Gender<div id='drop-gender' class='dropdown'></div></th>
+    <th class='filter-arrow' onclick="toggleDropdown('nationality')">Nationality<div id='drop-nationality' class='dropdown'></div></th>
+    <th class='filter-arrow' onclick="toggleDropdown('sponsor')">Sponsor<div id='drop-sponsor' class='dropdown'></div></th>
+    <th>Room</th>`;
+
+  workerExtraCols.forEach(col=>{
+    html += `<th contenteditable="${isAdmin}">${col}</th>`;
   });
-  html+='</tr></thead><tbody>';
-  workers.forEach((w,index)=>{
-    html+='<tr>';
-    workerHeaders.forEach(h=>{
-      html+=`<td ${isAdmin ? 'contenteditable="true"' : ''}>${w[h]||''}</td>`;
+
+  html += '</tr></thead><tbody>';
+
+  let count=1;
+  filtered.forEach(w=>{
+    html += `<tr><td>${count++}</td><td>${w.iq}</td><td>${w.name}</td><td>${w.camp}</td><td>${w.company}</td><td>${w.gender}</td><td>${w.nationality}</td><td>${w.sponsor}</td><td>${w.room}</td>`;
+    workerExtraCols.forEach(col=>{
+      const val = (w.meta && w.meta[col]) || '';
+      html += `<td contenteditable="${isAdmin}">${val}</td>`;
     });
-    html+='</tr>';
+    html += '</tr>';
   });
-  html+='</tbody></table>';
-  document.getElementById('tableWrap').innerHTML=html;
+  html += '</tbody></table>';
+
+  if(isAdmin){
+    html += `<button onclick="addWorkerColumn()">➕ Add Column</button>`;
+    html += `<button onclick="deleteWorkerColumn()">🗑 Delete Column</button>`;
+    html += `<button onclick="saveWorkerTable()">💾 Save Worker Table</button>`;
+  }
+
+  tableWrap.innerHTML = html;
+  buildDropdowns();
 }
 
 function addWorkerColumn(){
-  const name = prompt("Enter new column name:");
-  if(!name) return;
-  workerHeaders.push(name);
-  workers.forEach(w=>w[name]='');
-  renderWorkerTable();
+  const colName = prompt('Enter new column name:');
+  if(!colName) return;
+  workerExtraCols.push(colName);
+  renderTable();
 }
 
 function deleteWorkerColumn(){
-  if(workerHeaders.length<=2){ alert("Cannot delete mandatory columns"); return; }
-  const name = prompt("Enter column name to delete:");
-  if(!name || !workerHeaders.includes(name)) return alert("Column not found");
-  if(['IQAMA','Name'].includes(name)) return alert("Cannot delete mandatory columns");
-  workerHeaders = workerHeaders.filter(h=>h!==name);
-  workers.forEach(w=>delete w[name]);
-  renderWorkerTable();
+  if(workerExtraCols.length===0){ alert('No extra columns to delete'); return; }
+  workerExtraCols.pop();
+  renderTable();
 }
 
-function saveWorkerDetails(){
+function saveWorkerTable(){
   const tbl = document.getElementById('workerTable');
-  if(!tbl) return alert('No table to save');
-  const ths = tbl.tHead.rows[0].cells;
-  workerHeaders = [];
-  for(let i=0;i<ths.length;i++){
-    workerHeaders.push(ths[i].innerText.trim() || `Col${i}`);
+  if(!tbl) return;
+  const headers = [];
+  for(let i=0;i<tbl.tHead.rows[0].cells.length;i++){
+    headers.push(tbl.tHead.rows[0].cells[i].innerText.trim());
   }
-  const trs = tbl.tBodies[0].rows;
-  for(let r=0;r<trs.length;r++){
-    const row = trs[r];
-    workerHeaders.forEach((h,c)=>{
-      workers[r][h]=row.cells[c].innerText.trim();
-    });
+
+  const rows = tbl.tBodies[0].rows;
+  for(let r=0;r<rows.length;r++){
+    const w = workers[r];
+    if(!w.meta) w.meta={};
+    for(let c=0;c<workerExtraCols.length;c++){
+      w.meta[workerExtraCols[c]] = rows[r].cells[9+c].innerText.trim();
+    }
   }
   apiSaveData().then(res=>{
-    if(res) alert("✅ Worker details saved permanently");
-    else alert("⚠️ Save failed");
+    if(res) alert('✅ Worker table saved.');
+    else alert('⚠️ Save failed.');
   });
 }
 
-// ----- Load and render -----
-async function loadData(){
-  const d = await apiGetData();
-  workers = d.workers || [];
-  workerHeaders = d.workerHeaders || workerHeaders;
-  camps = d.camps || [];
-  campData = d.campData || {};
-  renderAll();
+// --- rest unchanged (filters, client summary, camp summary) ---
+function buildDropdowns(){
+  ['camp','company','gender','nationality','sponsor'].forEach(k=>{
+    const values = [...new Set(workers.map(w=>(w[k]||'').trim()).filter(v=>v))].sort();
+    const drop = document.getElementById('drop-'+k);
+    if(!drop) return;
+    drop.innerHTML = `<label><input type='checkbox' value='' onchange='filterChange("${k}", this)'> All</label>`;
+    values.forEach(v=>{
+      const checked = activeFilters[k]?.includes(v) ? 'checked' : '';
+      drop.innerHTML += `<label><input type='checkbox' value='${v}' ${checked} onchange='filterChange("${k}", this)'> ${v}</label>`;
+    });
+  });
 }
 
-function renderAll(){
-  updateCampDropdown();
-  renderWorkerTable();
-  renderClientSummary();
-  renderCampSummary();
+function toggleDropdown(k){
+  const el = document.getElementById('drop-'+k);
+  const all = document.querySelectorAll('.dropdown');
+  all.forEach(d=>{if(d!==el)d.style.display='none';});
+  el.style.display = el.style.display==='block'?'none':'block';
+}
+window.onclick=function(e){if(!e.target.closest('th'))document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');};
+
+function filterChange(k, el){
+  const val = el.value;
+  activeFilters[k] = activeFilters[k] || [];
+  if(val===''){activeFilters[k]=[];renderTable();}
+  else{
+    if(el.checked) activeFilters[k].push(val);
+    else activeFilters[k]=activeFilters[k].filter(v=>v!==val);
+    renderTable();
+  }
 }
 
-function updateCampDropdown(){campSelect.innerHTML='';camps.forEach(c=>{const o=document.createElement('option');o.value=c;o.innerText=c;campSelect.appendChild(o);});}
+// --- Client summary and CSV functions remain unchanged ---
+function renderClientSummary(){
+  const map={};
+  workers.forEach(w=>{map[w.company]=map[w.company]||{};map[w.company][w.camp]=(map[w.company][w.camp]||0)+1;});
+  let html='<table><tr><th>Company</th>';
+  camps.forEach(c=>html+=`<th>${c}</th>`);html+='<th>Total</th></tr>';
+  let total=0;
+  for(const comp in map){let sum=0;html+=`<tr><td>${comp}</td>`;
+    camps.forEach(c=>{const val=map[comp][c]||0;sum+=val;html+=`<td>${val}</td>`;});
+    html+=`<td>${sum}</td></tr>`;total+=sum;}
+  html+=`<tr style="font-weight:bold;background:#cfe2ff;"><td>Total</td><td colspan="${Math.max(1,camps.length)}"></td><td>${total}</td></tr></table>`;
+  clientSummary.innerHTML=html;
+}
+
+async function loadData(){const d=await apiGetData();workers=d.workers||[];camps=d.camps||[];campData=d.campData||{};updateCampDropdown();renderAll();}
+function renderAll(){updateCampDropdown();renderTable();renderClientSummary(); /* camp summary unchanged */ }
 function showSelectedCamp(){const s=campSelect.value;if(s)renderTable(s);else renderTable();}
 
-// ---- Original functions for filtering, client/camp summary etc. remain unchanged ----
+function exportCSV(){if(workers.length===0)return alert("No data to export!");const h=["iq","name","camp","company","gender","nationality","sponsor","room"];const r=workers.map(w=>h.map(x=>`"${(w[x]||"").replace(/"/g,'""')}"`).join(","));const csv=h.join(",")+"\n"+r.join("\n");const b=new Blob([csv],{type:"text/csv"});const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download="workers.csv";a.click();URL.revokeObjectURL(u);}
+function importCSV(){const f=document.getElementById("csvFile").files[0];if(!f)return alert("Select CSV file!");const r=new FileReader();r.onload=function(e){const lines=e.target.result.split("\n").map(l=>l.trim()).filter(l=>l);const headers=lines.shift().split(",").map(h=>h.trim().replace(/"/g,""));const nw=lines.map(l=>{const v=l.split(",").map(x=>x.replace(/^"|"$/g,"").trim());const o={};headers.forEach((h,i)=>o[h]=v[i]||"");return o;});if(confirm(`Import ${nw.length} workers?`)){workers=nw;apiSaveData().then(x=>{if(x){alert("✅ CSV Imported!");renderAll();}});}};r.readAsText(f);}
 
+// initial load
 loadData();
 </script>
 </body>
