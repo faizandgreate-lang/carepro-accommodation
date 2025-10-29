@@ -83,6 +83,28 @@
 <div id="campSummary"></div>
 
 <h2>👷 Worker Details</h2>
+
+<!-- 🔽 FILTER ADDED HERE -->
+<div class="search-box">
+  <h3>⚙️ Filter Workers</h3>
+  <label>Company:
+    <input type="text" id="filterCompany" placeholder="Type company name">
+  </label>
+  <label>Gender:
+    <select id="filterGender">
+      <option value="">All</option>
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+    </select>
+  </label>
+  <label>Nationality:
+    <input type="text" id="filterNationality" placeholder="Type nationality">
+  </label>
+  <button onclick="applyFilter()">Filter</button>
+  <button onclick="clearFilter()">Clear</button>
+</div>
+<!-- 🔼 END FILTER -->
+
 <div id="tableWrap"></div>
 
 <div class="footer">Made with ❤️ by <span>Faizan Khan</span></div>
@@ -210,6 +232,39 @@ function renderTable(campFilter='') {
   tableWrap.innerHTML = html;
 }
 
+/* ---------- FILTER ---------- */
+function applyFilter() {
+  const company = document.getElementById('filterCompany').value.trim().toLowerCase();
+  const gender = document.getElementById('filterGender').value.trim().toLowerCase();
+  const nationality = document.getElementById('filterNationality').value.trim().toLowerCase();
+
+  let filtered = workers.filter(w => {
+    return (!company || (w.company || '').toLowerCase().includes(company)) &&
+           (!gender || (w.gender || '').toLowerCase().includes(gender)) &&
+           (!nationality || (w.nationality || '').toLowerCase().includes(nationality));
+  });
+
+  renderFilteredTable(filtered);
+}
+
+function clearFilter() {
+  document.getElementById('filterCompany').value = '';
+  document.getElementById('filterGender').value = '';
+  document.getElementById('filterNationality').value = '';
+  renderTable(); // show all
+}
+
+function renderFilteredTable(filtered) {
+  let html = `<table><tr><th>#</th><th>IQAMA</th><th>Name</th><th>Camp</th><th>Company</th><th>Gender</th><th>Nationality</th><th>Sponsor</th><th>Room</th></tr>`;
+  let count = 1;
+  filtered.forEach(w => {
+    html += `<tr><td>${count++}</td><td>${w.iq}</td><td>${w.name}</td><td>${w.camp}</td><td>${w.company}</td><td>${w.gender}</td><td>${w.nationality}</td><td>${w.sponsor}</td><td>${w.room}</td></tr>`;
+  });
+  html += '</table>';
+  tableWrap.innerHTML = html;
+}
+
+/* ---------- REST ---------- */
 function renderClientSummary() {
   const map = {};
   workers.forEach(w => {
@@ -252,7 +307,7 @@ function renderCampSummary() {
   campSummary.innerHTML = html;
 }
 
-/* ---------- INITIAL LOAD & RENDER ---------- */
+/* ---------- INITIAL LOAD ---------- */
 async function loadData() {
   const data = await apiGetData();
   workers = data.workers || [];
