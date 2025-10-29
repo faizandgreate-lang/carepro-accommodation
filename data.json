@@ -3828,16 +3828,43 @@
   ],
   "campData": {
     "Bawadi": {
+      "beds": 0,
       "rooms": 0,
-      "beds": 0
+      "meta": {
+        "AVAILABLE BEDS": "0",
+        "MALE": "86",
+        "FEMALE": "0",
+        "TOTAL": "86"
+      }
     },
     "Bawadi G": {
+      "beds": 0,
       "rooms": 0,
-      "beds": 0
+      "meta": {
+        "AVAILABLE BEDS": "0",
+        "MALE": "0",
+        "FEMALE": "158",
+        "TOTAL": "158"
+      }
     },
     "Rabwa": {
+      "beds": 123,
       "rooms": 123,
-      "beds": 123
-    }
+      "meta": {
+        "AVAILABLE BEDS": "0",
+        "MALE": "136",
+        "FEMALE": "0",
+        "TOTAL": "136"
+      }
+    },
+    "__summaryHeaders": [
+      "CAMP",
+      "ROOMS",
+      "TOTAL BEDS",
+      "AVAILABLE BEDS",
+      "MALE",
+      "FEMALE",
+      "TOTAL"
+    ]
   }
 }
