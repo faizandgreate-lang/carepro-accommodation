@@ -3847,49 +3847,6 @@
     "Rabwa"
   ],
   "campData": {
-    "Bawadi": {
-      "beds": 0,
-      "rooms": 0,
-      "meta": {
-        "AVAILABLE BEDS": "0",
-        "MALE": "89",
-        "FEMALE": "0",
-        "TOTAL": "89",
-        "NEW COLUMN": ""
-      }
-    },
-    "Bawadi G": {
-      "beds": 0,
-      "rooms": 0,
-      "meta": {
-        "AVAILABLE BEDS": "0",
-        "MALE": "0",
-        "FEMALE": "158",
-        "TOTAL": "158",
-        "NEW COLUMN": ""
-      }
-    },
-    "Rabwa": {
-      "beds": 123,
-      "rooms": 123,
-      "meta": {
-        "AVAILABLE BEDS": "0",
-        "MALE": "136",
-        "FEMALE": "0",
-        "TOTAL": "136",
-        "NEW COLUMN": ""
-      }
-    },
-    "__summaryHeaders": [
-      "CAMP",
-      "ROOMS",
-      "TOTAL BEDS",
-      "AVAILABLE BEDS",
-      "MALE",
-      "FEMALE",
-      "TOTAL",
-      "NEW COLUMN"
-    ],
     "__workerColumns": {
       "headers": [
         "#",
@@ -8525,6 +8482,50 @@
           ""
         ]
       ]
-    }
+    },
+    "Bawadi": {
+      "beds": 0,
+      "rooms": 0,
+      "meta": {
+        "AVAILABLE BEDS": "0",
+        "MALE": "88",
+        "FEMALE": "0",
+        "TOTAL": "88",
+        "NEW COLUMN": ""
+      }
+    },
+    "Bawadi G": {
+      "beds": 0,
+      "rooms": 0,
+      "meta": {
+        "AVAILABLE BEDS": "0",
+        "MALE": "0",
+        "FEMALE": "158",
+        "TOTAL": "158",
+        "NEW COLUMN": ""
+      }
+    },
+    "Rabwa": {
+      "beds": 123,
+      "rooms": 123,
+      "meta": {
+        "AVAILABLE BEDS": "0",
+        "MALE": "136",
+        "FEMALE": "0",
+        "TOTAL": "136",
+        "NEW COLUMN": ""
+      }
+    },
+    "__summaryHeaders": [
+      "CAMP",
+      "ROOMS",
+      "TOTAL BEDS",
+      "AVAILABLE BEDS",
+      "MALE",
+      "FEMALE",
+      "TOTAL",
+      "NEW COLUMN",
+      "NEW COLUMN"
+    ]
   }
 }
