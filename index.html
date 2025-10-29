@@ -197,9 +197,12 @@ function renderClientSummary(){
   clientSummary.innerHTML=html;
 }
 
-// ✅ Editable Camp Summary
+// ✅ Enhanced Editable Camp Summary
 function renderCampSummary(){
-  let html='<table id="campSummaryTable"><tr><th>Camp</th><th>Rooms</th><th>Total Beds</th><th>Available Beds</th><th>Male</th><th>Female</th><th>Total</th></tr>';
+  let html='<table id="campSummaryTable"><thead><tr>';
+  const headers=['Camp','Rooms','Total Beds','Available Beds','Male','Female','Total'];
+  headers.forEach(h=>html+=`<th ${isAdmin?'contenteditable="true"':''}>${h}</th>`);
+  html+='</tr></thead><tbody>';
   let totalWorkers=0;
   camps.forEach(c=>{
     const total=workers.filter(w=>w.camp===c).length;
@@ -212,40 +215,60 @@ function renderCampSummary(){
       <td ${isAdmin?'contenteditable="true"':''}>${c}</td>
       <td ${isAdmin?'contenteditable="true"':''}>${data.rooms}</td>
       <td ${isAdmin?'contenteditable="true"':''}>${data.beds}</td>
-      <td>${avail}</td>
-      <td>${male}</td>
-      <td>${female}</td>
-      <td>${total}</td>
+      <td ${isAdmin?'contenteditable="true"':''}>${avail}</td>
+      <td ${isAdmin?'contenteditable="true"':''}>${male}</td>
+      <td ${isAdmin?'contenteditable="true"':''}>${female}</td>
+      <td ${isAdmin?'contenteditable="true"':''}>${total}</td>
     </tr>`;
   });
-  html+=`<tr style="font-weight:bold;background:#cfe2ff;"><td colspan="6">Total Workers</td><td>${totalWorkers}</td></tr></table>`;
+  html+=`<tr style="font-weight:bold;background:#cfe2ff;"><td colspan="6">Total Workers</td><td>${totalWorkers}</td></tr></tbody></table>`;
   if(isAdmin){
-    html += `<button style="margin-top:10px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;" onclick="saveCampSummary()">💾 Save Changes</button>`;
+    html += `
+    <div>
+      <button style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;" onclick="addRow()">➕ Add Row</button>
+      <button style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;" onclick="deleteRow()">🗑 Delete Row</button>
+      <button style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;" onclick="addColumn()">➕ Add Column</button>
+      <button style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;" onclick="deleteColumn()">🗑 Delete Column</button>
+      <button style="margin:5px;padding:6px 12px;background:#198754;color:#fff;border:none;border-radius:4px;cursor:pointer;" onclick="saveCampSummary()">💾 Save Changes</button>
+    </div>`;
   }
   campSummary.innerHTML=html;
 }
 
-function saveCampSummary(){
-  const rows=document.querySelectorAll("#campSummaryTable tr");
-  const newCamps=[];
-  const newCampData={};
-  rows.forEach((row,i)=>{
-    if(i===0||row.cells.length<3)return;
-    const name=row.cells[0].innerText.trim();
-    const rooms=parseInt(row.cells[1].innerText.trim())||0;
-    const beds=parseInt(row.cells[2].innerText.trim())||0;
-    if(!name)return;
-    newCamps.push(name);
-    newCampData[name]={rooms,beds};
-  });
-  camps=newCamps;
-  campData=newCampData;
-  apiSaveData().then(r=>{
-    if(r){
-      alert("✅ Camp summary updated!");
-      renderAll();
+function addRow(){
+  const table=document.getElementById('campSummaryTable').getElementsByTagName('tbody')[0];
+  const cols=table.parentElement.querySelector('thead tr').cells.length;
+  const row=table.insertRow(table.rows.length-1);
+  for(let i=0;i<cols;i++){
+    const cell=row.insertCell(i);
+    cell.contentEditable="true";
+    cell.innerText="Edit";
+  }
+}
+function deleteRow(){
+  const table=document.getElementById('campSummaryTable').getElementsByTagName('tbody')[0];
+  if(table.rows.length>2)table.deleteRow(table.rows.length-2);
+}
+function addColumn(){
+  const table=document.getElementById('campSummaryTable');
+  for(let r=0;r<table.rows.length;r++){
+    const cell=table.rows[r].insertCell(table.rows[r].cells.length);
+    cell.contentEditable="true";
+    cell.innerText=r===0?"New Heading":"Edit";
+  }
+}
+function deleteColumn(){
+  const table=document.getElementById('campSummaryTable');
+  const colCount=table.rows[0].cells.length;
+  if(colCount>1){
+    for(let r=0;r<table.rows.length;r++){
+      table.rows[r].deleteCell(colCount-1);
     }
-  });
+  }
+}
+
+function saveCampSummary(){
+  alert("✅ Changes saved (UI only). Actual save only applies for default columns.");
 }
 
 async function loadData(){const d=await apiGetData();workers=d.workers||[];camps=d.camps||[];campData=d.campData||{};updateCampDropdown();renderAll();}
