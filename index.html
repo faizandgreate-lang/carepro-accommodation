@@ -276,6 +276,42 @@ function showSelectedCamp() {
   else renderTable();
 }
 
+/* ---------- CSV IMPORT / EXPORT ---------- */
+function exportCSV() {
+  if (workers.length === 0) return alert("No data to export!");
+  const headers = ["iq","name","camp","company","gender","nationality","sponsor","room"];
+  const rows = workers.map(w => headers.map(h => `"${(w[h] || "").replace(/"/g,'""')}"`).join(","));
+  const csv = headers.join(",") + "\n" + rows.join("\n");
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "workers.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importCSV() {
+  const file = document.getElementById("csvFile").files[0];
+  if (!file) return alert("Please select a CSV file first!");
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const lines = e.target.result.split("\n").map(l => l.trim()).filter(l => l);
+    const headers = lines.shift().split(",").map(h => h.trim().replace(/"/g,""));
+    const newWorkers = lines.map(line => {
+      const values = line.split(",").map(v => v.replace(/^"|"$/g,"").trim());
+      const w = {};
+      headers.forEach((h,i)=>w[h]=values[i]||"");
+      return w;
+    });
+    if (confirm(`Import ${newWorkers.length} workers? This will replace current list.`)) {
+      workers = newWorkers;
+      apiSaveData().then(res=>{if(res){alert("✅ CSV Imported Successfully!");renderAll();}});
+    }
+  };
+  reader.readAsText(file);
+}
+
 loadData();
 </script>
 </body>
