@@ -21,6 +21,7 @@
   .filter-arrow::after { content:"▼"; font-size:10px; margin-left:6px; color:#fff; }
   @media (max-width:768px){table,th,td{font-size:12px}.form input,button{width:100%;display:block}}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -78,20 +79,28 @@
   <div id="searchResult" style="margin-top:10px;"></div>
 </div>
 
-<h2>🏢 Client / Company Summary</h2>
-<div id="clientSummary"></div>
+<!-- Client Summary + Chart -->
+<div style="display:flex; gap:20px; flex-wrap:wrap;">
+  <div id="clientSummaryContainer" style="flex:1; min-width:300px;">
+    <h2>🏢 Client / Company Summary</h2>
+    <div id="clientSummary"></div>
+  </div>
+  <div id="clientChartContainer" style="flex:1; min-width:300px;">
+    <h2>📊 Client Worker Chart</h2>
+    <canvas id="clientChart" height="300"></canvas>
+  </div>
+</div>
 
 <h2>🏘️ Camp Summary</h2>
 <div id="campSummary"></div>
 
 <h2>👷 Worker Details</h2>
-<div id="tableWrap"></div><!-- Admin buttons to add/delete/rename worker table columns -->
+<div id="tableWrap"></div>
 <div id="workerColumnControls" class="hidden" style="margin-top:8px;">
-  <button onclick="addWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Column</button>
-  <button onclick="deleteWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">🗑 Delete Column</button>
-  <button onclick="saveWorkerColumns()" style="margin:5px;padding:6px 12px;background:#198754;color:#fff;border:none;border-radius:4px;cursor:pointer;">💾 Save Changes</button>
+  <button onclick="addWorkerColumn()">➕ Add Column</button>
+  <button onclick="deleteWorkerColumn()">🗑 Delete Column</button>
+  <button onclick="saveWorkerColumns()">💾 Save Changes</button>
 </div>
-
 
 <div class="footer">Made with ❤️ by <span>Faizan Khan</span></div>
 
@@ -102,327 +111,62 @@ let workers = [];
 let camps = [];
 let campData = {};
 let activeFilters = {};
+let clientChartInstance = null;
 
 // ---------- API Save / Load ----------
 async function apiGetData() {
-  try {
-    const r = await fetch('/api/saveData');
-    if(!r.ok) throw new Error('Failed to load data');
-    return await r.json();
-  } catch(e){ console.error(e); alert('Error loading data.'); return {workers:[], camps:[], campData:{}}; }
+  try { const r = await fetch('/api/saveData'); if(!r.ok) throw new Error('Failed'); return await r.json(); }
+  catch(e){ console.error(e); alert('Error loading data.'); return {workers:[], camps:[], campData:{}}; }
 }
 async function apiSaveData() {
-  try {
-    const r = await fetch('/api/saveData', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({workers, camps, campData})
-    });
-    const j = await r.json();
-    if(!r.ok) throw new Error(j.message||'Save failed');
-    return j;
-  } catch(e){ console.error(e); alert('Error saving data'); return null; }
+  try { const r = await fetch('/api/saveData', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({workers, camps, campData})}); return await r.json();}
+  catch(e){ console.error(e); alert('Error saving data'); return null; }
 }
 
-// ---------- Admin Login ----------
-function login(){
-  if(adminPw.value===ADMIN_PASSWORD){
-    isAdmin=true;
-    editor.classList.remove('hidden');
-    loginBox.classList.add('hidden');
-    adminBox.classList.remove('hidden');
-    msg.innerText='Admin mode enabled';
-    renderAll();
-  } else alert('❌ Wrong password!');
-}
-function logout(){
-  isAdmin=false;
-  editor.classList.add('hidden');
-  loginBox.classList.remove('hidden');
-  adminBox.classList.add('hidden');
-  renderAll();
-}
+// ---------- Admin ----------
+function login(){ if(adminPw.value===ADMIN_PASSWORD){ isAdmin=true; editor.classList.remove('hidden'); loginBox.classList.add('hidden'); adminBox.classList.remove('hidden'); msg.innerText='Admin mode enabled'; renderAll();} else alert('❌ Wrong password!');}
+function logout(){ isAdmin=false; editor.classList.add('hidden'); loginBox.classList.remove('hidden'); adminBox.classList.add('hidden'); renderAll();}
 
-// ---------- Workers Table ----------
-function addWorker(){
-  const w={iq:f_iq.value.trim(),name:f_name.value.trim(),camp:f_camp.value.trim(),company:f_company.value.trim(),gender:f_gender.value.trim(),nationality:f_nationality.value.trim(),sponsor:f_sponsor.value.trim(),room:f_room.value.trim()};
-  if(!w.iq||!w.name) return alert("IQAMA and Name required!");
-  workers.push(w);
-  apiSaveData().then(r=>{if(r){msg.innerText="✅ Worker added!"; renderAll();}});
-}
-function deleteWorkerPrompt(){
-  const iq=prompt("Enter IQAMA to delete:");
-  if(!iq) return;
-  const i=workers.findIndex(w=>w.iq===iq);
-  if(i>=0){
-    workers.splice(i,1);
-    apiSaveData().then(r=>{if(r){alert("🗑️ Worker deleted!"); renderAll();}});
-  } else alert("❌ IQAMA not found!");
-}
-function updateCampDropdown(){
-  campSelect.innerHTML='';
-  camps.forEach(c=>{const o=document.createElement('option'); o.value=c; o.innerText=c; campSelect.appendChild(o);});
-}
-function renderTable(campFilter=''){
-  let filtered = workers.filter(w=>(!campFilter||w.camp===campFilter));
-  Object.keys(activeFilters).forEach(k=>{
-    if(activeFilters[k]?.length>0){
-      filtered = filtered.filter(w=>activeFilters[k].includes((w[k]||'').toString()));
-    }
-  });
-  let html = `<table><thead><tr>
-    <th>#</th><th>IQAMA</th><th>Name</th>
-    <th class='filter-arrow' onclick="toggleDropdown('camp')">Camp<div id='drop-camp' class='dropdown'></div></th>
-    <th class='filter-arrow' onclick="toggleDropdown('company')">Company<div id='drop-company' class='dropdown'></div></th>
-    <th class='filter-arrow' onclick="toggleDropdown('gender')">Gender<div id='drop-gender' class='dropdown'></div></th>
-    <th class='filter-arrow' onclick="toggleDropdown('nationality')">Nationality<div id='drop-nationality' class='dropdown'></div></th>
-    <th class='filter-arrow' onclick="toggleDropdown('sponsor')">Sponsor<div id='drop-sponsor' class='dropdown'></div></th>
-    <th>Room</th></tr></thead><tbody>`;
-  let count=1;
-  filtered.forEach(w=>{
-    html+=`<tr><td>${count++}</td><td>${w.iq}</td><td>${w.name}</td><td>${w.camp}</td><td>${w.company}</td><td>${w.gender}</td><td>${w.nationality}</td><td>${w.sponsor}</td><td>${w.room}</td></tr>`;
-  });
-  html+='</tbody></table>';
-  tableWrap.innerHTML=html;document.getElementById('workerColumnControls').classList.toggle('hidden', !isAdmin);
-
-  buildDropdowns();
-}
-function buildDropdowns(){
-  ['camp','company','gender','nationality','sponsor'].forEach(k=>{
-    const values=[...new Set(workers.map(w=>(w[k]||'').trim()).filter(v=>v))].sort();
-    const drop=document.getElementById('drop-'+k);
-    if(!drop) return;
-    drop.innerHTML=`<label><input type='checkbox' value='' onchange='filterChange("${k}", this)'> All</label>`;
-    values.forEach(v=>{
-      const checked=activeFilters[k]?.includes(v)?'checked':'';
-      drop.innerHTML+=`<label><input type='checkbox' value='${v}' ${checked} onchange='filterChange("${k}", this)'> ${v}</label>`;
-    });
-  });
-}
-function toggleDropdown(k){
-  const el=document.getElementById('drop-'+k);
-  document.querySelectorAll('.dropdown').forEach(d=>{if(d!==el)d.style.display='none';});
-  el.style.display=(el.style.display==='block')?'none':'block';
-}
+// ---------- Workers ----------
+function addWorker(){ const w={iq:f_iq.value.trim(),name:f_name.value.trim(),camp:f_camp.value.trim(),company:f_company.value.trim(),gender:f_gender.value.trim(),nationality:f_nationality.value.trim(),sponsor:f_sponsor.value.trim(),room:f_room.value.trim()}; if(!w.iq||!w.name) return alert("IQAMA and Name required!"); workers.push(w); apiSaveData().then(r=>{if(r){msg.innerText="✅ Worker added!"; renderAll();}});}
+function deleteWorkerPrompt(){ const iq=prompt("Enter IQAMA to delete:"); if(!iq) return; const i=workers.findIndex(w=>w.iq===iq); if(i>=0){ workers.splice(i,1); apiSaveData().then(r=>{if(r){alert("🗑️ Worker deleted!"); renderAll();}});} else alert("❌ IQAMA not found!"); }
+function updateCampDropdown(){ campSelect.innerHTML=''; camps.forEach(c=>{const o=document.createElement('option'); o.value=c; o.innerText=c; campSelect.appendChild(o);});}
+function renderTable(campFilter=''){ let filtered = workers.filter(w=>(!campFilter||w.camp===campFilter)); Object.keys(activeFilters).forEach(k=>{ if(activeFilters[k]?.length>0) filtered = filtered.filter(w=>activeFilters[k].includes((w[k]||'').toString()));}); let html = `<table><thead><tr><th>#</th><th>IQAMA</th><th>Name</th><th class='filter-arrow' onclick="toggleDropdown('camp')">Camp<div id='drop-camp' class='dropdown'></div></th><th class='filter-arrow' onclick="toggleDropdown('company')">Company<div id='drop-company' class='dropdown'></div></th><th class='filter-arrow' onclick="toggleDropdown('gender')">Gender<div id='drop-gender' class='dropdown'></div></th><th class='filter-arrow' onclick="toggleDropdown('nationality')">Nationality<div id='drop-nationality' class='dropdown'></div></th><th class='filter-arrow' onclick="toggleDropdown('sponsor')">Sponsor<div id='drop-sponsor' class='dropdown'></div></th><th>Room</th></tr></thead><tbody>`; let count=1; filtered.forEach(w=>{ html+=`<tr><td>${count++}</td><td>${w.iq}</td><td>${w.name}</td><td>${w.camp}</td><td>${w.company}</td><td>${w.gender}</td><td>${w.nationality}</td><td>${w.sponsor}</td><td>${w.room}</td></tr>`; }); html+='</tbody></table>'; tableWrap.innerHTML=html; document.getElementById('workerColumnControls').classList.toggle('hidden', !isAdmin); buildDropdowns();}
+function buildDropdowns(){ ['camp','company','gender','nationality','sponsor'].forEach(k=>{ const values=[...new Set(workers.map(w=>(w[k]||'').trim()).filter(v=>v))].sort(); const drop=document.getElementById('drop-'+k); if(!drop) return; drop.innerHTML=`<label><input type='checkbox' value='' onchange='filterChange("${k}", this)'> All</label>`; values.forEach(v=>{ const checked=activeFilters[k]?.includes(v)?'checked':''; drop.innerHTML+=`<label><input type='checkbox' value='${v}' ${checked} onchange='filterChange("${k}", this)'> ${v}</label>`; }); });}
+function toggleDropdown(k){ const el=document.getElementById('drop-'+k); document.querySelectorAll('.dropdown').forEach(d=>{if(d!==el)d.style.display='none';}); el.style.display=(el.style.display==='block')?'none':'block';}
 window.onclick=function(e){if(!e.target.closest('th')) document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');};
-function filterChange(k, el){
-  const val=el.value;
-  activeFilters[k]=activeFilters[k]||[];
-  if(val===''){activeFilters[k]=[]; renderTable(); return;}
-  if(el.checked) activeFilters[k].push(val);
-  else activeFilters[k]=activeFilters[k].filter(v=>v!==val);
-  renderTable();
-}
+function filterChange(k, el){ const val=el.value; activeFilters[k]=activeFilters[k]||[]; if(val===''){activeFilters[k]=[]; renderTable(); return;} if(el.checked) activeFilters[k].push(val); else activeFilters[k]=activeFilters[k].filter(v=>v!==val); renderTable();}
 
-// ---------- Client Summary ----------
+// ---------- Client Summary + Chart ----------
 function renderClientSummary(){
   const map={};
-  workers.forEach(w=>{map[w.company]=map[w.company]||{}; map[w.company][w.camp]=(map[w.company][w.camp]||0)+1;});
-  let html='<table><tr><th>Company</th>';
-  camps.forEach(c=>html+=`<th>${c}</th>`); html+='<th>Total</th></tr>';
-  let total=0;
-  for(const comp in map){
-    let sum=0;
-    html+=`<tr><td>${comp}</td>`;
-    camps.forEach(c=>{const val=map[comp][c]||0; sum+=val; html+=`<td>${val}</td>`;});
-    html+=`<td>${sum}</td></tr>`;
-    total+=sum;
-  }
+  workers.forEach(w=>{ map[w.company]=map[w.company]||{}; map[w.company][w.camp]=(map[w.company][w.camp]||0)+1; });
+  let html='<table><tr><th>Company</th>'; camps.forEach(c=>html+=`<th>${c}</th>`); html+='<th>Total</th></tr>';
+  const chartLabels=[]; const chartData=[];
+  for(const comp in map){ let sum=0; html+=`<tr><td>${comp}</td>`; camps.forEach(c=>{const val=map[comp][c]||0; sum+=val; html+=`<td>${val}</td>`;}); html+=`<td>${sum}</td></tr>`; chartLabels.push(comp); chartData.push(sum);}
+  let total=chartData.reduce((a,b)=>a+b,0);
   html+=`<tr style="font-weight:bold;background:#cfe2ff;"><td>Total</td><td colspan="${Math.max(1,camps.length)}"></td><td>${total}</td></tr></table>`;
   clientSummary.innerHTML=html;
-}
 
-// ---------- Camp Summary (Editable / Add Row / Column) ----------
-function getSavedHeaders(){
-  return (campData && Array.isArray(campData.__summaryHeaders) && campData.__summaryHeaders.length>0)
-    ? campData.__summaryHeaders.slice()
-    : ['Camp','Rooms','Total Beds','Available Beds','Male','Female','Total'];
-}
-
-function renderCampSummary(){
-  const headers=getSavedHeaders();
-  let html='<table id="campSummaryTable"><thead><tr>';
-  headers.forEach(h=>{html+=`<th ${isAdmin?'contenteditable="true"':''}>${h}</th>`;});
-  html+='</tr></thead><tbody>';
-  let totalWorkers=0;
-  camps.forEach(c=>{
-    const total=workers.filter(w=>w.camp===c).length;
-    const male=workers.filter(w=>w.camp===c && (w.gender||'').toLowerCase().startsWith('m')).length;
-    const female=workers.filter(w=>w.camp===c && (w.gender||'').toLowerCase().startsWith('f')).length;
-    const data=campData[c]||{beds:0,rooms:0,meta:{}};
-    const avail=Math.max((Number(data.beds)||0)-total,0);
-    totalWorkers+=total;
-    html+='<tr>';
-    headers.forEach(h=>{
-      const key=h.trim().toLowerCase();
-      let val='';
-      if(key==='camp') val=c;
-      else if(key==='rooms'||key==='room') val=data.rooms||0;
-      else if(key==='total beds'||key==='beds'||key==='total_beds') val=data.beds||0;
-      else if(key==='available beds'||key==='available') val=avail;
-      else if(key==='male') val=male;
-      else if(key==='female') val=female;
-      else if(key==='total') val=total;
-      else val=(data.meta && data.meta[h])!==undefined?data.meta[h]:'';
-      html+=`<td ${isAdmin?'contenteditable="true"':''}>${val}</td>`;
-    });
-    html+='</tr>';
+  // Chart
+  const ctx=document.getElementById('clientChart').getContext('2d');
+  if(clientChartInstance) clientChartInstance.destroy();
+  clientChartInstance = new Chart(ctx,{
+    type:'bar',
+    data:{labels:chartLabels,datasets:[{label:'Workers',data:chartData,backgroundColor:'#004085'}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,stepSize:1}}}
   });
-  html+=`<tr style="font-weight:bold;background:#cfe2ff;"><td colspan="${Math.max(1,headers.length-1)}">Total Workers</td><td>${totalWorkers}</td></tr>`;
-  html+='</tbody></table>';
-
-  if(isAdmin){
-    html+=`<div style="margin-top:8px;">
-      <button onclick="addRow()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Row</button>
-      <button onclick="deleteRow()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">🗑 Delete Row</button>
-      <button onclick="addColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Column</button>
-      <button onclick="deleteColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">🗑 Delete Column</button>
-      <button onclick="saveCampSummary()" style="margin:5px;padding:6px 12px;background:#198754;color:#fff;border:none;border-radius:4px;cursor:pointer;">💾 Save Changes</button>
-    </div>`;
-  }
-
-  campSummary.innerHTML=html;
-}
-
-// ---------- Camp Summary Row / Column Functions ----------
-function addRow(){
-  const tbl=document.getElementById('campSummaryTable');
-  if(!tbl) return;
-  const tbody=tbl.tBodies[0];
-  const headers=tbl.tHead.rows[0].cells.length;
-  let insertIndex=tbody.rows.length-1; // before total row
-  const row=tbody.insertRow(insertIndex);
-  for(let i=0;i<headers;i++){ const cell=row.insertCell(i); cell.contentEditable="true"; cell.innerText=(i===0?'New Camp':''); }
-}
-function deleteRow(){
-  const tbl=document.getElementById('campSummaryTable');
-  if(!tbl) return;
-  const tbody=tbl.tBodies[0];
-  if(!tbody || tbody.rows.length<=1) return alert('Cannot delete last row.');
-  tbody.deleteRow(tbody.rows.length-2); // delete last data row before total
-}
-function addColumn(){
-  const tbl=document.getElementById('campSummaryTable');
-  if(!tbl) return;
-  const colCount=tbl.rows[0].cells.length;
-  const th=document.createElement('th'); th.contentEditable="true"; th.innerText='New Column';
-  tbl.rows[0].appendChild(th);
-  const tbody=tbl.tBodies[0];
-  for(let r=0;r<tbody.rows.length;r++){ const row=tbody.rows[r]; const cell=row.insertCell(row.cells.length); cell.contentEditable="true"; cell.innerText=''; }
-}
-function deleteColumn(){
-  const tbl=document.getElementById('campSummaryTable');
-  if(!tbl) return;
-  if(tbl.rows[0].cells.length<=2) return alert('Cannot delete last column.');
-  for(let r=0;r<tbl.rows.length;r++){ const row=tbl.rows[r]; if(row.cells.length>0) row.deleteCell(row.cells.length-1); }
-}
-function saveCampSummary(){
-  const tbl=document.getElementById('campSummaryTable');
-  if(!tbl) return alert('Nothing to save.');
-  const headers=[]; for(let i=0;i<tbl.tHead.rows[0].cells.length;i++) headers.push(tbl.tHead.rows[0].cells[i].innerText.trim()||`Col${i}`);
-  const tbody=tbl.tBodies[0]; if(!tbody) return;
-  const rows=[];
-  for(let r=0;r<tbody.rows.length;r++){
-    const row=tbody.rows[r]; if(row.innerText.includes('Total Workers')) break;
-    const cells=[]; for(let c=0;c<row.cells.length;c++) cells.push(row.cells[c].innerText.trim());
-    if(!cells[0]) continue;
-    rows.push(cells);
-  }
-  const newCamps=[]; const newCampData={};
-  rows.forEach(cells=>{
-    const name=cells[0].trim(); if(!name) return;
-    newCamps.push(name);
-    const existing=campData[name]||{beds:0,rooms:0,meta:{}};
-    const entry={beds:Number(existing.beds)||0,rooms:Number(existing.rooms)||0,meta:Object.assign({},existing.meta||{})};
-    for(let i=1;i<headers.length;i++){
-      const h=headers[i].trim(); const val=cells[i]!==undefined?cells[i]:''; const key=h.toLowerCase();
-      if(key==='rooms'||key==='room') entry.rooms=Number(val)||0;
-      else if(key==='total beds'||key==='beds'||key==='total_beds') entry.beds=Number(val)||0;
-      else entry.meta[h]=val;
-    }
-    newCampData[name]=entry;
-  });
-  newCampData.__summaryHeaders=headers;
-  camps=newCamps;
-  const preserved={}; for(const k in campData){if(!newCampData[k] && k!=='__summaryHeaders') preserved[k]=campData[k];}
-  campData=Object.assign({},preserved,newCampData); campData.__summaryHeaders=headers;
-  apiSaveData().then(res=>{if(res){alert('✅ Camp summary saved.'); updateCampDropdown(); renderAll();} else alert('⚠️ Save failed.');});
-}
-
-// ---------- CSV ----------
-function exportCSV(){
-  if(workers.length===0) return alert("No data to export!");
-  const h=["iq","name","camp","company","gender","nationality","sponsor","room"];
-  const r=workers.map(w=>h.map(x=>`"${(w[x]||"").replace(/"/g,'""')}"`).join(","));
-  const csv=h.join(",")+"\n"+r.join("\n");
-  const b=new Blob([csv],{type:"text/csv"});
-  const u=URL.createObjectURL(b);
-  const a=document.createElement("a"); a.href=u; a.download="workers.csv"; a.click(); URL.revokeObjectURL(u);
-}
-function importCSV(){
-  const f=document.getElementById("csvFile").files[0]; if(!f) return alert("Select CSV file!");
-  const r=new FileReader();
-  r.onload=function(e){
-    const lines=e.target.result.split("\n").map(l=>l.trim()).filter(l=>l);
-    const headers=lines.shift().split(",").map(h=>h.trim().replace(/"/g,""));
-    const nw=lines.map(l=>{const v=l.split(",").map(x=>x.replace(/^"|"$/g,"").trim()); const o={}; headers.forEach((h,i)=>o[h]=v[i]||""); return o; });
-    if(confirm(`Import ${nw.length} workers?`)){ workers=nw; apiSaveData().then(x=>{if(x){alert("✅ CSV Imported!"); renderAll();}});}
-  };
-  r.readAsText(f);
 }
 
 // ---------- Helpers ----------
-async function loadData(){
-  const d=await apiGetData();
-  workers=d.workers||[]; camps=d.camps||[]; campData=d.campData||{};
-  updateCampDropdown(); renderAll();
-}
-function renderAll(){updateCampDropdown(); renderTable(); renderClientSummary(); renderCampSummary();}
+async function loadData(){ const d=await apiGetData(); workers=d.workers||[]; camps=d.camps||[]; campData=d.campData||{}; updateCampDropdown(); renderAll();}
+function renderAll(){ updateCampDropdown(); renderTable(); renderClientSummary(); renderCampSummary(); }
 function showSelectedCamp(){const s=campSelect.value; if(s) renderTable(s); else renderTable();}
-// ---------- Worker Table Column Functions ----------
-function addWorkerColumn() {
-  if(!isAdmin) return alert("Only admin can add columns.");
-  const table = document.querySelector("#tableWrap table");
-  if(!table) return alert("No worker table found.");
-  const headerRow = table.tHead.rows[0];
-  const newTh = document.createElement("th");
-  newTh.contentEditable = "true";
-  newTh.innerText = "New Column";
-  headerRow.appendChild(newTh);
-  for(let r=0;r<table.tBodies[0].rows.length;r++){
-    const cell = table.tBodies[0].rows[r].insertCell();
-    cell.contentEditable = "true";
-    cell.innerText = "";
-  }
-}
 
-function deleteWorkerColumn() {
-  if(!isAdmin) return alert("Only admin can delete columns.");
-  const table = document.querySelector("#tableWrap table");
-  if(!table) return alert("No worker table found.");
-  const colCount = table.tHead.rows[0].cells.length;
-  if(colCount <= 2) return alert("Cannot delete essential columns.");
-  for(let r=0;r<table.rows.length;r++){
-    table.rows[r].deleteCell(colCount-1);
-  }
-}
-
-function saveWorkerColumns(){
-  if(!isAdmin) return alert("Only admin can save changes.");
-  const table = document.querySelector("#tableWrap table");
-  if(!table) return alert("No table found.");
-  const headers = Array.from(table.tHead.rows[0].cells).map(th => th.innerText.trim());
-  const rows = [];
-  for(let r=0;r<table.tBodies[0].rows.length;r++){
-    const cells = Array.from(table.tBodies[0].rows[r].cells).map(td => td.innerText.trim());
-    rows.push(cells);
-  }
-  // store columns as metadata (safe for future)
-  campData.__workerColumns = {headers, rows};
-  apiSaveData().then(r=>{
-    if(r) alert("✅ Columns saved successfully!");
-    else alert("⚠️ Save failed.");
-  });
-}
+// ---------- Worker Columns ----------
+function addWorkerColumn(){ if(!isAdmin) return alert("Only admin can add columns."); const table=document.querySelector("#tableWrap table"); if(!table) return; const headerRow=table.tHead.rows[0]; const newTh=document.createElement("th"); newTh.contentEditable=true; newTh.innerText="New Column"; headerRow.appendChild(newTh); for(let r=0;r<table.tBodies[0].rows.length;r++){ const cell=table.tBodies[0].rows[r].insertCell(); cell.contentEditable=true; cell.innerText=""; } }
+function deleteWorkerColumn(){ if(!isAdmin) return alert("Only admin can delete columns."); const table=document.querySelector("#tableWrap table"); if(!table) return; const colCount=table.tHead.rows[0].cells.length; if(colCount<=2) return alert("Cannot delete essential columns."); for(let r=0;r<table.rows.length;r++) table.rows[r].deleteCell(colCount-1); }
+function saveWorkerColumns(){ if(!isAdmin) return alert("Only admin can save changes."); const table=document.querySelector("#tableWrap table"); if(!table) return; const headers=Array.from(table.tHead.rows[0].cells).map(th=>th.innerText.trim()); const rows=[]; for(let r=0;r<table.tBodies[0].rows.length;r++){ const cells=Array.from(table.tBodies[0].rows[r].cells).map(td=>td.innerText.trim()); rows.push(cells); } campData.__workerColumns={headers,rows}; apiSaveData().then(r=>{if(r) alert("✅ Columns saved successfully!"); else alert("⚠️ Save failed.");}); }
 
 // initial load
 loadData();
