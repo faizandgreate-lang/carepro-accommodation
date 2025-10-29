@@ -76,7 +76,17 @@
   <button onclick="exportCSV()">Export Workers CSV</button><br><br>
   <input type="file" id="csvFile" accept=".csv">
   <button onclick="importCSV()">Import CSV</button>
-  <p style="font-size:12px;color:gray">CSV Format: iq,name,camp,company,gender,nationality,sponsor,room</p>
+  <p style="font-size:12px;color:gray">CSV Format: iq,name,camp,company,gender,nationality,sponsor,room</p><h4>🔑 Master Controls</h4>
+<label>Master Password: <input type="password" id="masterPw" placeholder="Enter Master Password"></label>
+<button onclick="verifyMaster()">Verify</button>
+<div id="masterMsg" style="color:green;margin-top:5px;font-weight:600;"></div>
+
+<div id="masterControls" class="hidden" style="margin-top:8px;">
+  <button onclick="addWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Column</button>
+  <button onclick="deleteWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">🗑 Delete Column</button>
+  <button onclick="saveWorkerColumns()" style="margin:5px;padding:6px 12px;background:#198754;color:#fff;border:none;border-radius:4px;cursor:pointer;">💾 Save Changes</button>
+</div>
+
 </div>
 
 <h2>🏕️ Select Camp</h2>
@@ -483,6 +493,20 @@ function saveWorkerColumns(){
     if(r) alert("✅ Columns saved successfully!");
     else alert("⚠️ Save failed.");
   });
+}
+const MASTER_PASSWORD = 'Care@12345'; // <-- set your desired password
+
+function verifyMaster() {
+  const pw = document.getElementById('masterPw').value;
+  const msg = document.getElementById('masterMsg');
+  const ctrl = document.getElementById('masterControls');
+  if(pw === MASTER_PASSWORD){
+    ctrl.classList.remove('hidden');
+    msg.innerText = "✅ Master verified! Column controls enabled.";
+  } else {
+    ctrl.classList.add('hidden');
+    msg.innerText = "❌ Wrong master password!";
+  }
 }
 
 // initial load
