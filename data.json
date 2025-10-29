@@ -3854,7 +3854,8 @@
   "camps": [
     "CP 2",
     "Bawadi",
-    "Bawadi G"
+    "Bawadi G",
+    "Rabwa"
   ],
   "campData": {
     "CP 2": {
@@ -3866,6 +3867,10 @@
       "rooms": 0
     },
     "Bawadi G": {
+      "beds": 0,
+      "rooms": 0
+    },
+    "Rabwa": {
       "beds": 0,
       "rooms": 0
     }
