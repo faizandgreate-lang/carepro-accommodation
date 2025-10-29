@@ -3852,16 +3852,11 @@
     }
   ],
   "camps": [
-    "CP 2",
     "Bawadi",
     "Bawadi G",
     "Rabwa"
   ],
   "campData": {
-    "CP 2": {
-      "beds": 0,
-      "rooms": 0
-    },
     "Bawadi": {
       "beds": 0,
       "rooms": 0
