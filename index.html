@@ -182,7 +182,8 @@ function renderTable(campFilter=''){
     html+=`<tr><td>${count++}</td><td>${w.iq}</td><td>${w.name}</td><td>${w.camp}</td><td>${w.company}</td><td>${w.gender}</td><td>${w.nationality}</td><td>${w.sponsor}</td><td>${w.room}</td></tr>`;
   });
   html+='</tbody></table>';
-  tableWrap.innerHTML=html;
+  tableWrap.innerHTML=html;document.getElementById('workerColumnControls').classList.toggle('hidden', !isAdmin);
+
   buildDropdowns();
 }
 function buildDropdowns(){
