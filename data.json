@@ -3838,16 +3838,16 @@
   ],
   "campData": {
     "Bawadi": {
-      "beds": 0,
-      "rooms": 0
+      "rooms": 0,
+      "beds": 0
     },
     "Bawadi G": {
-      "beds": 0,
-      "rooms": 0
+      "rooms": 0,
+      "beds": 0
     },
     "Rabwa": {
-      "beds": 0,
-      "rooms": 0
+      "rooms": 123,
+      "beds": 123
     }
   }
 }
