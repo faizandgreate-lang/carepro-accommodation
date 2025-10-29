@@ -3834,7 +3834,8 @@
         "AVAILABLE BEDS": "0",
         "MALE": "86",
         "FEMALE": "0",
-        "TOTAL": "86"
+        "TOTAL": "86",
+        "NEW COLUMN": ""
       }
     },
     "Bawadi G": {
@@ -3844,7 +3845,8 @@
         "AVAILABLE BEDS": "0",
         "MALE": "0",
         "FEMALE": "158",
-        "TOTAL": "158"
+        "TOTAL": "158",
+        "NEW COLUMN": ""
       }
     },
     "Rabwa": {
@@ -3854,7 +3856,8 @@
         "AVAILABLE BEDS": "0",
         "MALE": "136",
         "FEMALE": "0",
-        "TOTAL": "136"
+        "TOTAL": "136",
+        "NEW COLUMN": ""
       }
     },
     "__summaryHeaders": [
@@ -3864,7 +3867,8 @@
       "AVAILABLE BEDS",
       "MALE",
       "FEMALE",
-      "TOTAL"
+      "TOTAL",
+      "NEW COLUMN"
     ]
   }
 }
