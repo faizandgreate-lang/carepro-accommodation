@@ -3862,9 +3862,9 @@
       "rooms": 0,
       "meta": {
         "AVAILABLE BEDS": "0",
-        "MALE": "86",
+        "MALE": "89",
         "FEMALE": "0",
-        "TOTAL": "86",
+        "TOTAL": "89",
         "NEW COLUMN": ""
       }
     },
@@ -3897,7 +3897,9 @@
       "AVAILABLE BEDS",
       "MALE",
       "FEMALE",
-      "TOTAL"
+      "TOTAL",
+      "NEW COLUMN",
+      "NEW COLUMN"
     ]
   }
 }
