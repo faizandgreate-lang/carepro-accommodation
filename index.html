@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Care-Pro Riyadh Accommodation</title>
 <style>
-  /* (styles same as your original, slightly trimmed for brevity) */
   body { font-family: "Poppins", Arial, sans-serif; margin: 20px; background: linear-gradient(135deg,#f8f9fa,#e9ecef); color:#222; }
   h1 { text-align:center; color:#004085; font-size:28px; margin-bottom:15px;}
   table{border-collapse:collapse;width:100%;margin:15px 0;background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.08)}
@@ -89,16 +88,12 @@
 <div class="footer">Made with ❤️ by <span>Faizan Khan</span></div>
 
 <script>
-/* ---------- CONFIG ---------- */
-/* admin password (simple) */
 const ADMIN_PASSWORD = '1234';
-/* ---------- STATE ---------- */
 let isAdmin = false;
 let workers = [];
 let camps = [];
 let campData = {};
 
-/* ---------- API helpers (call serverless endpoints) ---------- */
 async function apiGetData() {
   try {
     const r = await fetch('/api/saveData');
@@ -106,7 +101,7 @@ async function apiGetData() {
     return await r.json();
   } catch (e) {
     console.error(e);
-    alert('Error loading data from server. See console.');
+    alert('Error loading data from server.');
     return { workers: [], camps: [], campData: {} };
   }
 }
@@ -123,7 +118,7 @@ async function apiSaveData() {
     return j;
   } catch (e) {
     console.error(e);
-    alert('Error saving data to server. See console.');
+    alert('Error saving data to server.');
     return null;
   }
 }
@@ -193,49 +188,7 @@ function deleteCamp() {
   apiSaveData().then(res => { if (res) { updateCampDropdown(); renderAll(); alert(`🗑️ Camp "${name}" deleted.`); }});
 }
 
-function updateCampBeds(c, v) {
-  campData[c] = campData[c] || { beds: 0, rooms: 0 };
-  campData[c].beds = parseInt(v) || 0;
-  apiSaveData().then(() => renderCampSummary());
-}
-function updateCampRooms(c, v) {
-  campData[c] = campData[c] || { beds: 0, rooms: 0 };
-  campData[c].rooms = parseInt(v) || 0;
-  apiSaveData().then(() => renderCampSummary());
-}
-
-/* ---------- CSV import/export ---------- */
-function exportCSV() {
-  const h = ['iq','name','camp','company','gender','nationality','sponsor','room'];
-  let csv = h.join(',') + '\n';
-  workers.forEach(w => csv += h.map(k => `"${(w[k]||'').toString().replace(/"/g,'""')}"`).join(',') + '\n');
-  const blob = new Blob([csv], {type:'text/csv'});
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'carepro_workers.csv';
-  link.click();
-}
-function importCSV() {
-  const file = csvFile.files[0];
-  if (!file) return alert("Select a CSV file.");
-  const r = new FileReader();
-  r.onload = e => {
-    const lines = e.target.result.split('\n').filter(l => l.trim());
-    const h = lines[0].split(',').map(x=>x.trim());
-    const arr = lines.slice(1).map(l => {
-      const v = l.split(',');
-      const o = {}; h.forEach((x,i)=>o[x]= (v[i]||'').replace(/"/g,'').trim());
-      return o;
-    });
-    if (confirm(`Import ${arr.length} workers?`)) {
-      workers = workers.concat(arr);
-      apiSaveData().then(res => { if (res) { renderAll(); alert('Imported successfully!'); }});
-    }
-  };
-  r.readAsText(file);
-}
-
-/* ---------- UI Renderers ---------- */
+/* ---------- UI ---------- */
 function updateCampDropdown() {
   const select = campSelect;
   select.innerHTML = '';
@@ -255,15 +208,6 @@ function renderTable(campFilter='') {
   });
   html += '</table>';
   tableWrap.innerHTML = html;
-}
-
-function searchByIqama() {
-  const iq = searchIqama.value.trim();
-  if (!iq) return searchResult.innerHTML = "<p style='color:red;'>Please enter IQAMA number</p>";
-  const w = workers.find(x => x.iq === iq);
-  if (!w) return searchResult.innerHTML = "<p style='color:red;'>No worker found</p>";
-  searchResult.innerHTML = `<table><tr><th>IQAMA</th><th>Name</th><th>Camp</th><th>Company</th><th>Gender</th><th>Nationality</th><th>Sponsor</th><th>Room</th></tr>
-  <tr><td>${w.iq}</td><td>${w.name}</td><td>${w.camp}</td><td>${w.company}</td><td>${w.gender}</td><td>${w.nationality}</td><td>${w.sponsor}</td><td>${w.room}</td></tr></table>`;
 }
 
 function renderClientSummary() {
@@ -317,9 +261,22 @@ async function loadData() {
   updateCampDropdown();
   renderAll();
 }
-function renderAll(){ updateCampDropdown(); renderTable(); renderClientSummary(); renderCampSummary(); }
-loadData();
 
+function renderAll() {
+  updateCampDropdown();
+  renderTable();
+  renderClientSummary();
+  renderCampSummary();
+}
+
+/* ---------- CAMP FILTER ---------- */
+function showSelectedCamp() {
+  const selected = document.getElementById('campSelect').value;
+  if (selected) renderTable(selected);
+  else renderTable();
+}
+
+loadData();
 </script>
 </body>
 </html>
