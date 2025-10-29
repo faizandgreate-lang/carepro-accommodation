@@ -32,15 +32,25 @@
 
 <h1>🏠 CARE-PRO ACCOMMODATION</h1>
 
-<div>
+<div style="margin-bottom:15px; display:flex; gap:10px; align-items:center;">
+  <!-- Admin login -->
   <span id="loginBox">
     <input type="password" id="adminPw" placeholder="Enter Admin Password">
     <button onclick="login()">Login</button>
   </span>
+  
   <span id="adminBox" class="hidden">
     <button onclick="logout()">Logout</button>
   </span>
+  
+  <!-- Make CV button always visible -->
+  <a href="https://linux-aios.github.io/care-pro-cv-generator-by-faizan/" target="_blank">
+    <button style="background:#198754;color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;">
+      Make CV
+    </button>
+  </a>
 </div>
+
 
 <div id="editor" class="form hidden">
   <h4>🔧 ADMIN PANEL</h4>
