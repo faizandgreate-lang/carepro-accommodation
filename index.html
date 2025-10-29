@@ -8,15 +8,17 @@
   body { font-family: "Poppins", Arial, sans-serif; margin: 20px; background: linear-gradient(135deg,#f8f9fa,#e9ecef); color:#222; }
   h1 { text-align:center; color:#004085; font-size:28px; margin-bottom:15px;}
   table{border-collapse:collapse;width:100%;margin:15px 0;background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.08)}
-  th,td{border:1px solid #ddd;padding:8px 10px;text-align:left;font-size:14px}
-  th{background:#004085;color:#fff;text-transform:uppercase}
+  th,td{border:1px solid #ddd;padding:8px 10px;text-align:left;font-size:14px;position:relative;}
+  th{background:#004085;color:#fff;text-transform:uppercase;cursor:pointer;}
   tr:nth-child(even){background:#f8f9fa}
   .form{border:1px solid #ccc;padding:12px;background:#fff;border-radius:8px;margin-top:10px}
   .form input{margin:5px;padding:6px 10px;border:1px solid #bbb;border-radius:4px}
   .form button{background:#004085;color:#fff;border:none;padding:6px 10px;border-radius:4px;cursor:pointer;margin:5px}
   .hidden{display:none}
-  .search-box{background:#e9f2ff;padding:12px;border-radius:8px;border:1px solid #cce5ff;margin-top:10px}
   .footer{text-align:center;margin-top:30px;color:#555;font-style:italic}
+  .dropdown { display:none; position:absolute; background:#fff; border:1px solid #ccc; border-radius:4px; top:100%; left:0; z-index:10; padding:5px; max-height:200px; overflow:auto; width:150px; box-shadow:0 2px 6px rgba(0,0,0,.1);}
+  .dropdown label { display:block; font-size:13px; cursor:pointer; margin:3px 0; }
+  .filter-arrow::after { content:"▼"; font-size:10px; margin-left:6px; color:#fff; }
   @media (max-width:768px){table,th,td{font-size:12px}.form input,button{width:100%;display:block}}
 </style>
 </head>
@@ -83,28 +85,6 @@
 <div id="campSummary"></div>
 
 <h2>👷 Worker Details</h2>
-
-<!-- 🔽 FILTER ADDED HERE -->
-<div class="search-box">
-  <h3>⚙️ Filter Workers</h3>
-  <label>Company:
-    <input type="text" id="filterCompany" placeholder="Type company name">
-  </label>
-  <label>Gender:
-    <select id="filterGender">
-      <option value="">All</option>
-      <option value="Male">Male</option>
-      <option value="Female">Female</option>
-    </select>
-  </label>
-  <label>Nationality:
-    <input type="text" id="filterNationality" placeholder="Type nationality">
-  </label>
-  <button onclick="applyFilter()">Filter</button>
-  <button onclick="clearFilter()">Clear</button>
-</div>
-<!-- 🔼 END FILTER -->
-
 <div id="tableWrap"></div>
 
 <div class="footer">Made with ❤️ by <span>Faizan Khan</span></div>
@@ -115,258 +95,129 @@ let isAdmin = false;
 let workers = [];
 let camps = [];
 let campData = {};
+let activeFilters = {}; // store selected filters
 
 async function apiGetData() {
   try {
     const r = await fetch('/api/saveData');
-    if (!r.ok) throw new Error('Failed to load data: ' + r.status);
+    if (!r.ok) throw new Error('Failed to load data');
     return await r.json();
   } catch (e) {
-    console.error(e);
-    alert('Error loading data from server.');
+    console.error(e); alert('Error loading data.');
     return { workers: [], camps: [], campData: {} };
   }
 }
-
 async function apiSaveData() {
   try {
-    const r = await fetch('/api/saveData', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ workers, camps, campData })
-    });
+    const r = await fetch('/api/saveData', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({workers,camps,campData})});
     const j = await r.json();
-    if (!r.ok) throw new Error(j.message || 'Save failed');
+    if (!r.ok) throw new Error(j.message||'Save failed');
     return j;
-  } catch (e) {
-    console.error(e);
-    alert('Error saving data to server.');
-    return null;
-  }
+  } catch(e){console.error(e);alert('Error saving data');return null;}
 }
 
-/* ---------- AUTH ---------- */
-function login() {
-  const pw = document.getElementById('adminPw').value;
-  if (pw === ADMIN_PASSWORD) {
-    isAdmin = true;
-    document.getElementById('editor').classList.remove('hidden');
-    document.getElementById('loginBox').classList.add('hidden');
-    document.getElementById('adminBox').classList.remove('hidden');
-    document.getElementById('msg').innerText = 'Admin mode enabled';
-    renderAll();
-  } else {
-    alert('❌ Wrong password!');
-  }
-}
-function logout() {
-  isAdmin = false;
-  document.getElementById('editor').classList.add('hidden');
-  document.getElementById('loginBox').classList.remove('hidden');
-  document.getElementById('adminBox').classList.add('hidden');
-  renderAll();
-}
+function login(){if(adminPw.value===ADMIN_PASSWORD){isAdmin=true;editor.classList.remove('hidden');loginBox.classList.add('hidden');adminBox.classList.remove('hidden');msg.innerText='Admin mode enabled';renderAll();}else alert('❌ Wrong password!');}
+function logout(){isAdmin=false;editor.classList.add('hidden');loginBox.classList.remove('hidden');adminBox.classList.add('hidden');renderAll();}
 
-/* ---------- CRUD ---------- */
-function addWorker() {
-  const w = {
-    iq: f_iq.value.trim(), name: f_name.value.trim(), camp: f_camp.value.trim(),
-    company: f_company.value.trim(), gender: f_gender.value.trim(),
-    nationality: f_nationality.value.trim(), sponsor: f_sponsor.value.trim(),
-    room: f_room.value.trim()
-  };
-  if (!w.iq || !w.name) return alert("IQAMA and Name required!");
-  workers.push(w);
-  apiSaveData().then(res => { if (res) { document.getElementById('msg').innerText = "✅ Worker added!"; renderAll(); }});
-}
+function addWorker(){const w={iq:f_iq.value.trim(),name:f_name.value.trim(),camp:f_camp.value.trim(),company:f_company.value.trim(),gender:f_gender.value.trim(),nationality:f_nationality.value.trim(),sponsor:f_sponsor.value.trim(),room:f_room.value.trim()};if(!w.iq||!w.name)return alert("IQAMA and Name required!");workers.push(w);apiSaveData().then(r=>{if(r){msg.innerText="✅ Worker added!";renderAll();}});}
+function deleteWorkerPrompt(){const iq=prompt("Enter IQAMA to delete:");if(!iq)return;const i=workers.findIndex(w=>w.iq===iq);if(i>=0){workers.splice(i,1);apiSaveData().then(r=>{if(r){alert("🗑️ Worker deleted!");renderAll();}});}else alert("❌ IQAMA not found!");}
+function addNewCamp(){const n=newCampName.value.trim();if(!n)return alert('Enter camp name.');if(camps.includes(n))return alert('Duplicate camp.');camps.push(n);campData[n]={beds:0,rooms:0};apiSaveData().then(r=>{if(r){updateCampDropdown();newCampName.value='';alert(`✅ Camp "${n}" added.`);renderAll();}});}
+function deleteCamp(){const n=newCampName.value.trim();if(!n)return alert('Enter camp name to delete.');if(!camps.includes(n))return alert('Camp not found.');if(!confirm(`Delete camp "${n}"?`))return;camps=camps.filter(c=>c!==n);delete campData[n];workers=workers.filter(w=>w.camp!==n);apiSaveData().then(r=>{if(r){updateCampDropdown();renderAll();alert(`🗑️ Camp "${n}" deleted.`);}});}
 
-function deleteWorkerPrompt() {
-  const iq = prompt("Enter IQAMA to delete:");
-  if (!iq) return;
-  const idx = workers.findIndex(w => w.iq === iq);
-  if (idx >= 0) {
-    workers.splice(idx, 1);
-    apiSaveData().then(res => { if (res) { alert("🗑️ Worker deleted!"); renderAll(); } });
-  } else alert("❌ IQAMA not found!");
-}
+function updateCampDropdown(){campSelect.innerHTML='';camps.forEach(c=>{const o=document.createElement('option');o.value=c;o.innerText=c;campSelect.appendChild(o);});}
 
-function addNewCamp() {
-  const name = newCampName.value.trim();
-  if (!name) return alert('Enter camp name.');
-  if (camps.includes(name)) return alert('Duplicate camp.');
-  camps.push(name);
-  campData[name] = { beds: 0, rooms: 0 };
-  apiSaveData().then(res => { if (res) { updateCampDropdown(); newCampName.value = ''; alert(`✅ Camp "${name}" added.`); renderAll(); }});
-}
-
-function deleteCamp() {
-  const name = newCampName.value.trim();
-  if (!name) return alert('Enter camp name to delete.');
-  if (!camps.includes(name)) return alert('Camp not found.');
-  if (!confirm(`Delete camp "${name}" and its workers?`)) return;
-  camps = camps.filter(c => c !== name);
-  delete campData[name];
-  workers = workers.filter(w => w.camp !== name);
-  apiSaveData().then(res => { if (res) { updateCampDropdown(); renderAll(); alert(`🗑️ Camp "${name}" deleted.`); }});
-}
-
-/* ---------- UI ---------- */
-function updateCampDropdown() {
-  const select = campSelect;
-  select.innerHTML = '';
-  camps.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c; opt.innerText = c; select.appendChild(opt);
-  });
-}
-
-function renderTable(campFilter='') {
-  let html = `<table><tr><th>#</th><th>IQAMA</th><th>Name</th><th>Camp</th><th>Company</th><th>Gender</th><th>Nationality</th><th>Sponsor</th><th>Room</th></tr>`;
-  let count = 1;
-  workers.forEach(w => {
-    if (!campFilter || w.camp === campFilter) {
-      html += `<tr><td>${count++}</td><td>${w.iq}</td><td>${w.name}</td><td>${w.camp}</td><td>${w.company}</td><td>${w.gender}</td><td>${w.nationality}</td><td>${w.sponsor}</td><td>${w.room}</td></tr>`;
+function renderTable(campFilter=''){
+  let filtered = workers.filter(w => (!campFilter || w.camp === campFilter));
+  Object.keys(activeFilters).forEach(k=>{
+    if(activeFilters[k].length>0){
+      filtered = filtered.filter(w => activeFilters[k].includes((w[k]||'').toString()));
     }
   });
-  html += '</table>';
-  tableWrap.innerHTML = html;
-}
 
-/* ---------- FILTER ---------- */
-function applyFilter() {
-  const company = document.getElementById('filterCompany').value.trim().toLowerCase();
-  const gender = document.getElementById('filterGender').value.trim().toLowerCase();
-  const nationality = document.getElementById('filterNationality').value.trim().toLowerCase();
+  let html = `<table><thead><tr>
+    <th>#</th><th>IQAMA</th><th>Name</th>
+    <th class='filter-arrow' onclick="toggleDropdown('camp')">Camp<div id='drop-camp' class='dropdown'></div></th>
+    <th class='filter-arrow' onclick="toggleDropdown('company')">Company<div id='drop-company' class='dropdown'></div></th>
+    <th class='filter-arrow' onclick="toggleDropdown('gender')">Gender<div id='drop-gender' class='dropdown'></div></th>
+    <th class='filter-arrow' onclick="toggleDropdown('nationality')">Nationality<div id='drop-nationality' class='dropdown'></div></th>
+    <th class='filter-arrow' onclick="toggleDropdown('sponsor')">Sponsor<div id='drop-sponsor' class='dropdown'></div></th>
+    <th>Room</th></tr></thead><tbody>`;
 
-  let filtered = workers.filter(w => {
-    return (!company || (w.company || '').toLowerCase().includes(company)) &&
-           (!gender || (w.gender || '').toLowerCase().includes(gender)) &&
-           (!nationality || (w.nationality || '').toLowerCase().includes(nationality));
-  });
-
-  renderFilteredTable(filtered);
-}
-
-function clearFilter() {
-  document.getElementById('filterCompany').value = '';
-  document.getElementById('filterGender').value = '';
-  document.getElementById('filterNationality').value = '';
-  renderTable(); // show all
-}
-
-function renderFilteredTable(filtered) {
-  let html = `<table><tr><th>#</th><th>IQAMA</th><th>Name</th><th>Camp</th><th>Company</th><th>Gender</th><th>Nationality</th><th>Sponsor</th><th>Room</th></tr>`;
-  let count = 1;
-  filtered.forEach(w => {
+  let count=1;
+  filtered.forEach(w=>{
     html += `<tr><td>${count++}</td><td>${w.iq}</td><td>${w.name}</td><td>${w.camp}</td><td>${w.company}</td><td>${w.gender}</td><td>${w.nationality}</td><td>${w.sponsor}</td><td>${w.room}</td></tr>`;
   });
-  html += '</table>';
+  html += '</tbody></table>';
   tableWrap.innerHTML = html;
+  buildDropdowns();
 }
 
-/* ---------- REST ---------- */
-function renderClientSummary() {
-  const map = {};
-  workers.forEach(w => {
-    map[w.company] = map[w.company] || {};
-    map[w.company][w.camp] = (map[w.company][w.camp] || 0) + 1;
-  });
-  let html = '<table><tr><th>Company</th>';
-  camps.forEach(c => html += `<th>${c}</th>`);
-  html += '<th>Total</th></tr>';
-  let total = 0;
-  for (const comp in map) {
-    let sum = 0; html += `<tr><td>${comp}</td>`;
-    camps.forEach(c => {
-      const val = map[comp][c] || 0; sum += val; html += `<td>${val}</td>`;
+function buildDropdowns(){
+  ['camp','company','gender','nationality','sponsor'].forEach(k=>{
+    const values = [...new Set(workers.map(w=>(w[k]||'').trim()).filter(v=>v))].sort();
+    const drop = document.getElementById('drop-'+k);
+    if(!drop) return;
+    drop.innerHTML = `<label><input type='checkbox' value='' onchange='filterChange("${k}", this)'> All</label>`;
+    values.forEach(v=>{
+      const checked = activeFilters[k]?.includes(v) ? 'checked' : '';
+      drop.innerHTML += `<label><input type='checkbox' value='${v}' ${checked} onchange='filterChange("${k}", this)'> ${v}</label>`;
     });
-    html += `<td>${sum}</td></tr>`; total += sum;
+  });
+}
+
+function toggleDropdown(k){
+  const el = document.getElementById('drop-'+k);
+  const all = document.querySelectorAll('.dropdown');
+  all.forEach(d=>{if(d!==el)d.style.display='none';});
+  el.style.display = el.style.display==='block'?'none':'block';
+}
+window.onclick=function(e){if(!e.target.closest('th'))document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');};
+
+function filterChange(k, el){
+  const val = el.value;
+  activeFilters[k] = activeFilters[k] || [];
+  if(val===''){activeFilters[k]=[];renderTable();}
+  else{
+    if(el.checked) activeFilters[k].push(val);
+    else activeFilters[k]=activeFilters[k].filter(v=>v!==val);
+    renderTable();
   }
-  html += `<tr style="font-weight:bold;background:#cfe2ff;"><td>Total</td><td colspan="${Math.max(1,camps.length)}"></td><td>${total}</td></tr></table>`;
-  clientSummary.innerHTML = html;
 }
 
-function renderCampSummary() {
-  let html = '<table><tr><th>Camp</th><th>Rooms</th><th>Total Beds</th><th>Available Beds</th><th>Male</th><th>Female</th><th>Total</th></tr>';
-  let totalWorkers = 0;
-  camps.forEach(c => {
-    const total = workers.filter(w => w.camp === c).length;
-    const male = workers.filter(w => w.camp === c && (w.gender||'').toLowerCase().startsWith('m')).length;
-    const female = workers.filter(w => w.camp === c && (w.gender||'').toLowerCase().startsWith('f')).length;
-    const data = campData[c] || { beds: 0, rooms: 0 };
-    const avail = Math.max(data.beds - total, 0);
-    totalWorkers += total;
-    html += `<tr>
-      <td>${c}</td>
-      <td>${isAdmin ? `<input type='number' value='${data.rooms}' onchange='updateCampRooms("${c}",this.value)'>` : data.rooms}</td>
-      <td>${isAdmin ? `<input type='number' value='${data.beds}' onchange='updateCampBeds("${c}",this.value)'>` : data.beds}</td>
-      <td>${avail}</td><td>${male}</td><td>${female}</td><td>${total}</td>
-    </tr>`;
+function renderClientSummary(){
+  const map={};
+  workers.forEach(w=>{map[w.company]=map[w.company]||{};map[w.company][w.camp]=(map[w.company][w.camp]||0)+1;});
+  let html='<table><tr><th>Company</th>';
+  camps.forEach(c=>html+=`<th>${c}</th>`);html+='<th>Total</th></tr>';
+  let total=0;
+  for(const comp in map){let sum=0;html+=`<tr><td>${comp}</td>`;
+    camps.forEach(c=>{const val=map[comp][c]||0;sum+=val;html+=`<td>${val}</td>`;});
+    html+=`<td>${sum}</td></tr>`;total+=sum;}
+  html+=`<tr style="font-weight:bold;background:#cfe2ff;"><td>Total</td><td colspan="${Math.max(1,camps.length)}"></td><td>${total}</td></tr></table>`;
+  clientSummary.innerHTML=html;
+}
+function renderCampSummary(){
+  let html='<table><tr><th>Camp</th><th>Rooms</th><th>Total Beds</th><th>Available Beds</th><th>Male</th><th>Female</th><th>Total</th></tr>';
+  let totalWorkers=0;
+  camps.forEach(c=>{
+    const total=workers.filter(w=>w.camp===c).length;
+    const male=workers.filter(w=>w.camp===c&&(w.gender||'').toLowerCase().startsWith('m')).length;
+    const female=workers.filter(w=>w.camp===c&&(w.gender||'').toLowerCase().startsWith('f')).length;
+    const data=campData[c]||{beds:0,rooms:0};
+    const avail=Math.max(data.beds-total,0);
+    totalWorkers+=total;
+    html+=`<tr><td>${c}</td><td>${isAdmin?`<input type='number' value='${data.rooms}' onchange='updateCampRooms("${c}",this.value)'>`:data.rooms}</td><td>${isAdmin?`<input type='number' value='${data.beds}' onchange='updateCampBeds("${c}",this.value)'>`:data.beds}</td><td>${avail}</td><td>${male}</td><td>${female}</td><td>${total}</td></tr>`;
   });
-  html += `<tr style="font-weight:bold;background:#cfe2ff;"><td colspan="6">Total Workers</td><td>${totalWorkers}</td></tr></table>`;
-  campSummary.innerHTML = html;
+  html+=`<tr style="font-weight:bold;background:#cfe2ff;"><td colspan="6">Total Workers</td><td>${totalWorkers}</td></tr></table>`;
+  campSummary.innerHTML=html;
 }
 
-/* ---------- INITIAL LOAD ---------- */
-async function loadData() {
-  const data = await apiGetData();
-  workers = data.workers || [];
-  camps = data.camps || [];
-  campData = data.campData || {};
-  updateCampDropdown();
-  renderAll();
-}
+async function loadData(){const d=await apiGetData();workers=d.workers||[];camps=d.camps||[];campData=d.campData||{};updateCampDropdown();renderAll();}
+function renderAll(){updateCampDropdown();renderTable();renderClientSummary();renderCampSummary();}
+function showSelectedCamp(){const s=campSelect.value;if(s)renderTable(s);else renderTable();}
 
-function renderAll() {
-  updateCampDropdown();
-  renderTable();
-  renderClientSummary();
-  renderCampSummary();
-}
-
-/* ---------- CAMP FILTER ---------- */
-function showSelectedCamp() {
-  const selected = document.getElementById('campSelect').value;
-  if (selected) renderTable(selected);
-  else renderTable();
-}
-
-/* ---------- CSV IMPORT / EXPORT ---------- */
-function exportCSV() {
-  if (workers.length === 0) return alert("No data to export!");
-  const headers = ["iq","name","camp","company","gender","nationality","sponsor","room"];
-  const rows = workers.map(w => headers.map(h => `"${(w[h] || "").replace(/"/g,'""')}"`).join(","));
-  const csv = headers.join(",") + "\n" + rows.join("\n");
-  const blob = new Blob([csv], {type:"text/csv"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "workers.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function importCSV() {
-  const file = document.getElementById("csvFile").files[0];
-  if (!file) return alert("Please select a CSV file first!");
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const lines = e.target.result.split("\n").map(l => l.trim()).filter(l => l);
-    const headers = lines.shift().split(",").map(h => h.trim().replace(/"/g,""));
-    const newWorkers = lines.map(line => {
-      const values = line.split(",").map(v => v.replace(/^"|"$/g,"").trim());
-      const w = {};
-      headers.forEach((h,i)=>w[h]=values[i]||"");
-      return w;
-    });
-    if (confirm(`Import ${newWorkers.length} workers? This will replace current list.`)) {
-      workers = newWorkers;
-      apiSaveData().then(res=>{if(res){alert("✅ CSV Imported Successfully!");renderAll();}});
-    }
-  };
-  reader.readAsText(file);
-}
-
+function exportCSV(){if(workers.length===0)return alert("No data to export!");const h=["iq","name","camp","company","gender","nationality","sponsor","room"];const r=workers.map(w=>h.map(x=>`"${(w[x]||"").replace(/"/g,'""')}"`).join(","));const csv=h.join(",")+"\n"+r.join("\n");const b=new Blob([csv],{type:"text/csv"});const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download="workers.csv";a.click();URL.revokeObjectURL(u);}
+function importCSV(){const f=document.getElementById("csvFile").files[0];if(!f)return alert("Select CSV file!");const r=new FileReader();r.onload=function(e){const lines=e.target.result.split("\n").map(l=>l.trim()).filter(l=>l);const headers=lines.shift().split(",").map(h=>h.trim().replace(/"/g,""));const nw=lines.map(l=>{const v=l.split(",").map(x=>x.replace(/^"|"$/g,"").trim());const o={};headers.forEach((h,i)=>o[h]=v[i]||"");return o;});if(confirm(`Import ${nw.length} workers?`)){workers=nw;apiSaveData().then(x=>{if(x){alert("✅ CSV Imported!");renderAll();}});}};r.readAsText(f);}
 loadData();
 </script>
 </body>
