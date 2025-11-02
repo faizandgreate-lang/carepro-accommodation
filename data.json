@@ -3842,8 +3842,7 @@
     }
   ],
   "camps": [
-    "Bawadi G",
-    "Rabwa"
+    "Bawadi G"
   ],
   "campData": {
     "__workerColumns": {
@@ -8478,17 +8477,6 @@
         "MALE": "0",
         "FEMALE": "158",
         "TOTAL": "158",
-        "NEW COLUMN": ""
-      }
-    },
-    "Rabwa": {
-      "beds": 123,
-      "rooms": 123,
-      "meta": {
-        "AVAILABLE BEDS": "0",
-        "MALE": "136",
-        "FEMALE": "0",
-        "TOTAL": "136",
         "NEW COLUMN": ""
       }
     },
