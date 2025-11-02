@@ -3842,7 +3842,6 @@
     }
   ],
   "camps": [
-    "Bawadi",
     "Bawadi G",
     "Rabwa"
   ],
@@ -8470,17 +8469,6 @@
           ""
         ]
       ]
-    },
-    "Bawadi": {
-      "beds": 0,
-      "rooms": 0,
-      "meta": {
-        "AVAILABLE BEDS": "0",
-        "MALE": "89",
-        "FEMALE": "0",
-        "TOTAL": "89",
-        "NEW COLUMN": ""
-      }
     },
     "Bawadi G": {
       "beds": 0,
