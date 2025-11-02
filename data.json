@@ -3841,7 +3841,9 @@
       "room": ""
     }
   ],
-  "camps": [],
+  "camps": [
+    "New Camp"
+  ],
   "campData": {
     "__workerColumns": {
       "headers": [
@@ -8466,6 +8468,17 @@
           ""
         ]
       ]
+    },
+    "New Camp": {
+      "beds": 0,
+      "rooms": 0,
+      "meta": {
+        "AVAILABLE BEDS": "",
+        "MALE": "",
+        "FEMALE": "",
+        "TOTAL": "",
+        "NEW COLUMN": ""
+      }
     },
     "__summaryHeaders": [
       "CAMP",
