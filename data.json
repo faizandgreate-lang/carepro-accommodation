@@ -1393,7 +1393,9 @@
   ],
   "camps": [
     "New Camp",
-    "Bawadi (G)"
+    "Bawadi (G)",
+    "New Camp",
+    "New Camp"
   ],
   "campData": {
     "__workerColumns": {
@@ -3706,6 +3708,17 @@
         "MALE": "",
         "FEMALE": "",
         "TOTAL": "",
+        "NEW COLUMN": ""
+      }
+    },
+    "Bawadi (G)": {
+      "beds": 0,
+      "rooms": 0,
+      "meta": {
+        "AVAILABLE BEDS": "0",
+        "MALE": "0",
+        "FEMALE": "139",
+        "TOTAL": "139",
         "NEW COLUMN": ""
       }
     },
