@@ -54,10 +54,6 @@
 
 <div id="editor" class="form hidden">
   <h4>🔧 ADMIN PANEL</h4>
-  <h4>➕ Add Worker Column</h4>
-<label>Column Name: <input type="text" id="newWorkerColName" placeholder="Enter column name"></label>
-<button onclick="addCustomWorkerColumn()">Add Column</button>
-<div id="newColMsg" style="color:green;margin-top:5px;font-weight:600;"></div>
 
   <label>IQAMA: <input id="f_iq"></label>
   <label>Name: <input id="f_name"></label>
@@ -81,18 +77,20 @@
   <button onclick="exportCSV()">Export Workers CSV</button><br><br>
   <input type="file" id="csvFile" accept=".csv">
   <button onclick="importCSV()">Import CSV</button>
-  <p style="font-size:12px;color:gray">CSV Format: iq,name,camp,company,gender,nationality,sponsor,room</p><h4>🔑 Master Controls</h4>
-<label>Master Password: <input type="password" id="masterPw" placeholder="Enter Master Password"></label>
-<button onclick="verifyMaster()">Verify</button>
-<div id="masterMsg" style="color:green;margin-top:5px;font-weight:600;"></div>
+  <p style="font-size:12px;color:gray">CSV Format: iq,name,camp,company,gender,nationality,sponsor,room</p>
 
-<div id="masterControls" class="hidden" style="margin-top:8px;">
-  <button onclick="addWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Column</button>
-  <button onclick="deleteWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">🗑 Delete Column</button>
-  <button onclick="saveWorkerColumns()" style="margin:5px;padding:6px 12px;background:#198754;color:#fff;border:none;border-radius:4px;cursor:pointer;">💾 Save Changes</button>
+  <h4>🔑 Master Controls</h4>
+  <label>Master Password: <input type="password" id="masterPw" placeholder="Enter Master Password"></label>
+  <button onclick="verifyMaster()">Verify</button>
+  <div id="masterMsg" style="color:green;margin-top:5px;font-weight:600;"></div>
+
+  <div id="masterControls" class="hidden" style="margin-top:8px;">
+    <button onclick="addWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Column</button>
+    <button onclick="deleteWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">🗑 Delete Column</button>
+    <button onclick="saveWorkerColumns()" style="margin:5px;padding:6px 12px;background:#198754;color:#fff;border:none;border-radius:4px;cursor:pointer;">💾 Save Changes</button>
+  </div>
 </div>
 
-</div>
 
 <h2>🏕️ Select Camp</h2>
 <div style="margin:10px 0;">
@@ -128,11 +126,11 @@
 <div id="tableWrap"></div>
 
 <!-- optional admin worker column controls (if you used previously) -->
-<div id="workerColumnControls" class="hidden" style="margin-top:8px;">
-  <button onclick="addWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Column</button>
-  <button onclick="deleteWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">🗑 Delete Column</button>
-  <button onclick="saveWorkerColumns()" style="margin:5px;padding:6px 12px;background:#198754;color:#fff;border:none;border-radius:4px;cursor:pointer;">💾 Save Changes</button>
-</div>
+<h2>👷 Worker Details</h2>
+<div id="tableWrap"></div>
+
+<div class="footer">Made with ❤️ by <span>Faizan Khan</span></div>
+
 
 <div class="footer">Made with ❤️ by <span>Faizan Khan</span></div>
 
@@ -309,40 +307,49 @@ function getSavedHeaders(){
     : ['Camp','Rooms','Total Beds','Available Beds','Male','Female','Total'];
 }
 
-function renderCampSummary(){
-  const headers=getSavedHeaders();
-  let html='<table id="campSummaryTable"><thead><tr>';
-  headers.forEach(h=>{html+=`<th ${isAdmin?'contenteditable="true"':''}>${h}</th>`;});
-  html+='</tr></thead><tbody>';
-  let totalWorkers=0;
-  camps.forEach(c=>{
-    const total=workers.filter(w=>w.camp===c).length;
-    const male=workers.filter(w=>w.camp===c && (w.gender||'').toLowerCase().startsWith('m')).length;
-    const female=workers.filter(w=>w.camp===c && (w.gender||'').toLowerCase().startsWith('f')).length;
-    const data=campData[c]||{beds:0,rooms:0,meta:{}};
-    const avail=Math.max((Number(data.beds)||0)-total,0);
-    totalWorkers+=total;
-    html+='<tr>';
-    headers.forEach(h=>{
-      const key=h.trim().toLowerCase();
-      let val='';
-      if(key==='camp') val=c;
-      else if(key==='rooms'||key==='room') val=data.rooms||0;
-      else if(key==='total beds'||key==='beds'||key==='total_beds') val=data.beds||0;
-      else if(key==='available beds'||key==='available') val=avail;
-      else if(key==='male') val=male;
-      else if(key==='female') val=female;
-      else if(key==='total') val=total;
-      else val=(data.meta && data.meta[h])!==undefined?data.meta[h]:'';
-      html+=`<td ${isAdmin?'contenteditable="true"':''}>${val}</td>`;
-    });
-    html+='</tr>';
-  });
-  html+=`<tr style="font-weight:bold;background:#cfe2ff;"><td colspan="${Math.max(1,headers.length-1)}">Total Workers</td><td>${totalWorkers}</td></tr>`;
-  html+='</tbody></table>';
+function renderCampSummary() {
+  const headers = getSavedHeaders();
+  let html = '<table id="campSummaryTable"><thead><tr>';
+  headers.forEach(h => { html += `<th ${isAdmin ? 'contenteditable="true"' : ''}>${h}</th>`; });
+  html += '</tr></thead><tbody>';
 
-  if(isAdmin){
-    html+=`<div style="margin-top:8px;">
+  let totalWorkers = 0;
+  camps.forEach(c => {
+    const total = workers.filter(w => w.camp === c).length;
+    const male = workers.filter(w => w.camp === c && (w.gender || '').toLowerCase().startsWith('m')).length;
+    const female = workers.filter(w => w.camp === c && (w.gender || '').toLowerCase().startsWith('f')).length;
+    const data = campData[c] || { beds: 0, rooms: 0, meta: {} };
+    const avail = Math.max((Number(data.beds) || 0) - total, 0);
+    totalWorkers += total;
+
+    html += '<tr>';
+    headers.forEach(h => {
+      const key = h.trim().toLowerCase();
+      let val = '';
+      if (key === 'camp') val = c;
+      else if (key === 'rooms' || key === 'room') val = data.rooms || 0;
+      else if (key === 'total beds' || key === 'beds' || key === 'total_beds') val = data.beds || 0;
+      else if (key === 'available beds' || key === 'available') val = avail;
+      else if (key === 'male') val = male;
+      else if (key === 'female') val = female;
+      else if (key === 'total') val = total;
+      else val = (data.meta && data.meta[h]) !== undefined ? data.meta[h] : '';
+      html += `<td ${isAdmin ? 'contenteditable="true"' : ''}>${val}</td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += `<tr style="font-weight:bold;background:#cfe2ff;">
+             <td colspan="${Math.max(1, headers.length - 1)}">Total Workers</td>
+             <td>${totalWorkers}</td>
+           </tr>`;
+  html += '</tbody></table>';
+
+  // show buttons only if master password is verified
+  const masterVerified = !document.getElementById('masterControls').classList.contains('hidden');
+
+  if (isAdmin && masterVerified) {
+    html += `<div style="margin-top:8px;">
       <button onclick="addRow()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Row</button>
       <button onclick="deleteRow()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">🗑 Delete Row</button>
       <button onclick="addColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Column</button>
@@ -351,8 +358,9 @@ function renderCampSummary(){
     </div>`;
   }
 
-  campSummary.innerHTML=html;
+  campSummary.innerHTML = html;
 }
+
 
 // ---------- Camp Summary Row / Column Functions ----------
 function addRow(){
