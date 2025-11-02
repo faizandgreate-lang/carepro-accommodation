@@ -3841,9 +3841,7 @@
       "room": ""
     }
   ],
-  "camps": [
-    "Bawadi G"
-  ],
+  "camps": [],
   "campData": {
     "__workerColumns": {
       "headers": [
@@ -8468,17 +8466,6 @@
           ""
         ]
       ]
-    },
-    "Bawadi G": {
-      "beds": 0,
-      "rooms": 0,
-      "meta": {
-        "AVAILABLE BEDS": "0",
-        "MALE": "0",
-        "FEMALE": "158",
-        "TOTAL": "158",
-        "NEW COLUMN": ""
-      }
     },
     "__summaryHeaders": [
       "CAMP",
