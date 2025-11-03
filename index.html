@@ -196,42 +196,42 @@ async function apiSaveData() {
 
 // ---------- Admin Login ----------
 let currentUserCamp = null;
-
 function login() {
   const user = document.getElementById("loginUser").value.trim();
-  const pw   = document.getElementById("loginPw").value.trim();
+  const pw = document.getElementById("loginPw").value.trim();
 
-  // --- Admin login ---
-  if (pw === ADMIN_PASSWORD) {
+  // === MASTER LOGIN ===
+  if (user === "CPF" && pw === "Care@12345") {
     isAdmin = true;
-    currentUserCamp = null;
+    currentUserCamp = "MASTER";
     editor.classList.remove('hidden');
     loginBox.classList.add('hidden');
     adminBox.classList.remove('hidden');
-    msg.innerText = "✅ Admin mode enabled";
+    msg.innerText = "✅ Master Admin mode enabled (Full Control)";
+    document.getElementById("masterHiddenSection").classList.remove("hidden");
+    document.getElementById("masterControls").classList.remove("hidden");
     renderAll();
     return;
   }
 
-  // --- Camp-specific user login ---
-  const campEntry = Object.entries(CAMP_USERS).find(([camp, creds]) =>
-    creds.user === user && creds.pass === pw
-  );
-
+  // === CAMP USER LOGIN ===
+  const campEntry = Object.entries(CAMP_USERS).find(([camp, creds]) => creds.user === user && creds.pass === pw);
   if (campEntry) {
     const [campName] = campEntry;
-    isAdmin = false;
     currentUserCamp = campName;
-    editor.classList.remove('hidden');
-    loginBox.classList.add('hidden');
-    adminBox.classList.remove('hidden');
-    msg.innerText = `✅ Logged in as ${user} (Camp: ${campName})`;
-    renderTable(campName);
+    isAdmin = false;
+    let currentUserCamp = null;
+    editor.classList.remove("hidden");
+    loginBox.classList.add("hidden");
+    adminBox.classList.remove("hidden");
+    msg.innerText = `✅ Logged in as Camp User (${campName})`;
+    renderAll();
     return;
   }
 
-  alert("❌ Invalid login credentials!");
+  alert("❌ Wrong User ID or Password!");
 }
+
 
 function logout(){
   isAdmin=false;
@@ -623,21 +623,25 @@ function saveWorkerColumns(){
 const MASTER_PASSWORD = 'Care@12345'; // <-- set your desired password
 
   function verifyMaster() {
-  const pw = document.getElementById('masterPw').value;
+  const pw = document.getElementById('masterPw').value.trim();
   const msg = document.getElementById('masterMsg');
   const ctrl = document.getElementById('masterControls');
   const hiddenSection = document.getElementById('masterHiddenSection');
-  
-  if (pw === MASTER_PASSWORD) {
+
+  if (pw === "Care@12345") {
+    isAdmin = true;
+    currentUserCamp = "MASTER";
     ctrl.classList.remove('hidden');
     hiddenSection.classList.remove('hidden');
-    msg.innerText = "✅ Master verified! Hidden sections are now visible.";
+    msg.innerText = "✅ Master verified! Full control unlocked.";
+    renderAll();
   } else {
     ctrl.classList.add('hidden');
     hiddenSection.classList.add('hidden');
     msg.innerText = "❌ Wrong master password!";
   }
 }
+
 
 function addCustomWorkerColumn() {
   const name = document.getElementById('newWorkerColName').value.trim();
