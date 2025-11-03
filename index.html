@@ -81,10 +81,41 @@
   <button onclick="exportCSV()">Export Workers CSV</button><br><br>
   <input type="file" id="csvFile" accept=".csv">
   <button onclick="importCSV()">Import CSV</button>
-  <p style="font-size:12px;color:gray">CSV Format: iq,name,camp,company,gender,nationality,sponsor,room</p><h4>🔑 Master Controls</h4>
-<label>Master Password: <input type="password" id="masterPw" placeholder="Enter Master Password"></label>
+  <p style="font-size:12px;color:gray">CSV Format: iq,name,camp,company,gender,nationality,sponsor,room</p>
+ <h4>📤 Export / 📥 Import Workers</h4>
+
+<!-- Everyone can see Export -->
+<button onclick="exportCSV()">Export Workers CSV</button><br><br>
+
+<!-- These stay hidden until master password is verified -->
+<div id="masterHiddenSection" class="hidden">
+
+  <h4>🏕️ Manage Camps</h4>
+  <input id="newCampName" placeholder="Enter Camp Name">
+  <button onclick="addNewCamp()">Add Camp</button>
+  <button onclick="deleteCamp()">Delete Camp</button>
+
+  <h4>📥 Import Workers</h4>
+  <input type="file" id="csvFile" accept=".csv">
+  <button onclick="importCSV()">Import CSV</button>
+  <p style="font-size:12px;color:gray">
+    CSV Format: iq,name,camp,company,gender,nationality,sponsor,room
+  </p>
+
+  <h4>➕ Add Worker Column</h4>
+  <label>Column Name: <input type="text" id="newWorkerColName" placeholder="Enter column name"></label>
+  <button onclick="addCustomWorkerColumn()">Add Column</button>
+  <div id="newColMsg" style="color:green;margin-top:5px;font-weight:600;"></div>
+
+</div>
+
+<h4>🔑 Master Controls</h4>
+<label>Master Password: 
+  <input type="password" id="masterPw" placeholder="Enter Master Password">
+</label>
 <button onclick="verifyMaster()">Verify</button>
 <div id="masterMsg" style="color:green;margin-top:5px;font-weight:600;"></div>
+
 
 <div id="masterControls" class="hidden" style="margin-top:8px;">
   <button onclick="addWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Column</button>
@@ -501,18 +532,23 @@ function saveWorkerColumns(){
 }
 const MASTER_PASSWORD = 'Care@12345'; // <-- set your desired password
 
-function verifyMaster() {
+  function verifyMaster() {
   const pw = document.getElementById('masterPw').value;
   const msg = document.getElementById('masterMsg');
   const ctrl = document.getElementById('masterControls');
-  if(pw === MASTER_PASSWORD){
+  const hiddenSection = document.getElementById('masterHiddenSection');
+  
+  if (pw === MASTER_PASSWORD) {
     ctrl.classList.remove('hidden');
-    msg.innerText = "✅ Master verified! Column controls enabled.";
+    hiddenSection.classList.remove('hidden');
+    msg.innerText = "✅ Master verified! Hidden sections are now visible.";
   } else {
     ctrl.classList.add('hidden');
+    hiddenSection.classList.add('hidden');
     msg.innerText = "❌ Wrong master password!";
   }
 }
+
 function addCustomWorkerColumn() {
   const name = document.getElementById('newWorkerColName').value.trim();
   const msg = document.getElementById('newColMsg');
