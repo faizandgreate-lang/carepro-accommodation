@@ -6395,7 +6395,7 @@
       "beds": 137,
       "rooms": 25,
       "meta": {
-        "AVAILABLE BEDS": "",
+        "AVAILABLE BEDS": "0",
         "MALE": "0",
         "FEMALE": "0",
         "TOTAL": "138",
