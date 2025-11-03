@@ -20,9 +20,12 @@
   .dropdown label { display:block; font-size:13px; cursor:pointer; margin:3px 0; color:#000; }
   .filter-arrow::after { content:"▼"; font-size:10px; margin-left:6px; color:#fff; }
   @media (max-width:768px){table,th,td{font-size:12px}.form input,button{width:100%;display:block}}
+  /* layout for summary + chart */
   .summary-chart { display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start; }
   .summary-chart > .box { flex:1; min-width:300px; background:transparent; }
 </style>
+
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -30,22 +33,26 @@
 <h1>🏠 CARE-PRO ACCOMMODATION</h1>
 
 <div style="margin-bottom:15px; display:flex; gap:10px; align-items:center;">
+  <!-- Admin login -->
   <span id="loginBox">
-    <input type="text" id="loginUser" placeholder="User ID">
-    <input type="password" id="loginPw" placeholder="Password">
-    <button onclick="login()">Login</button>
+  <input type="text" id="loginUser" placeholder="User ID">
+<input type="password" id="loginPw" placeholder="Password">
+<button onclick="login()">Login</button>
+
   </span>
   
   <span id="adminBox" class="hidden">
     <button onclick="logout()">Logout</button>
   </span>
   
+  <!-- Make CV button always visible -->
   <a href="https://linux-aios.github.io/care-pro-cv-generator-by-faizan/" target="_blank">
     <button style="background:#198754;color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;">
       Make CV
     </button>
   </a>
 </div>
+
 
 <div id="editor" class="form hidden">
   <h4>🔧 ADMIN PANEL</h4>
@@ -63,26 +70,48 @@
   <button onclick="deleteWorkerPrompt()">Delete by IQAMA</button>
   <div id="msg" style="color:green;margin-top:8px;font-weight:600;"></div>
 
-  <h4>📤 Export Workers</h4>
-  <button onclick="exportCSV()">Export Workers CSV</button>
+  <!-- === Export Section (Visible to Everyone) === -->
+<h4>📤 Export Workers</h4>
+<button onclick="exportCSV()">Export Workers CSV</button>
+<p style="font-size:12px;color:gray">
+  CSV Format: iq,name,camp,company,gender,nationality,sponsor,room
+</p>
 
-  <div id="masterHiddenSection" class="hidden" style="margin-top:20px;">
-    <h4>🏕️ Manage Camps</h4>
-    <input id="newCampName" placeholder="Enter Camp Name">
-    <button onclick="addNewCamp()">Add Camp</button>
-    <button onclick="deleteCamp()">Delete Camp</button>
+<!-- === Hidden Section (Visible only after Master Password) === -->
+<div id="masterHiddenSection" class="hidden" style="margin-top:20px;">
 
-    <h4>📥 Import Workers</h4>
-    <input type="file" id="csvFile" accept=".csv">
-    <button onclick="importCSV()">Import CSV</button>
+  <h4>🏕️ Manage Camps</h4>
+  <input id="newCampName" placeholder="Enter Camp Name">
+  <button onclick="addNewCamp()">Add Camp</button>
+  <button onclick="deleteCamp()">Delete Camp</button>
+
+  <h4>📥 Import Workers</h4>
+  <input type="file" id="csvFile" accept=".csv">
+  <button onclick="importCSV()">Import CSV</button>
+
+
+  <div id="masterControls" class="hidden" style="margin-top:12px;">
+    <button onclick="addWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Column</button>
+    <button onclick="deleteWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">🗑 Delete Column</button>
+    <button onclick="saveWorkerColumns()" style="margin:5px;padding:6px 12px;background:#198754;color:#fff;border:none;border-radius:4px;cursor:pointer;">💾 Save Changes</button>
   </div>
+</div>
 
-  <h4>🔑 Master Controls</h4>
-  <label>Master Password:
-    <input type="password" id="masterPw" placeholder="Enter Master Password">
-  </label>
-  <button onclick="verifyMaster()">Verify</button>
-  <div id="masterMsg" style="color:green;margin-top:5px;font-weight:600;"></div>
+<!-- === Master Password Input === -->
+<h4>🔑 Master Controls</h4>
+<label>Master Password:
+  <input type="password" id="masterPw" placeholder="Enter Master Password">
+</label>
+<button onclick="verifyMaster()">Verify</button>
+<div id="masterMsg" style="color:green;margin-top:5px;font-weight:600;"></div>
+
+
+<div id="masterControls" class="hidden" style="margin-top:8px;">
+  <button onclick="addWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Column</button>
+  <button onclick="deleteWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">🗑 Delete Column</button>
+  <button onclick="saveWorkerColumns()" style="margin:5px;padding:6px 12px;background:#198754;color:#fff;border:none;border-radius:4px;cursor:pointer;">💾 Save Changes</button>
+</div>
+
 </div>
 
 <h2>🏕️ Select Camp</h2>
@@ -93,11 +122,14 @@
   <button onclick="showSelectedCamp()">Show Camp</button>
 </div>
 
-<h3>🔍 Search Worker by IQAMA</h3>
-<input type="text" id="searchIqama" placeholder="Enter IQAMA Number">
-<button onclick="searchByIqama()">Search</button>
-<div id="searchResult" style="margin-top:10px;"></div>
+<div class="search-box">
+  <h3>🔍 Search Worker by IQAMA</h3>
+  <input type="text" id="searchIqama" placeholder="Enter IQAMA Number">
+  <button onclick="searchByIqama()">Search</button>
+  <div id="searchResult" style="margin-top:10px;"></div>
+</div>
 
+<!-- Client Summary + Chart -->
 <div class="summary-chart" style="margin-top:12px;">
   <div id="clientSummaryBox" class="box">
     <h2>🏢 Client / Company Summary</h2>
@@ -115,11 +147,25 @@
 <h2>👷 Worker Details</h2>
 <div id="tableWrap"></div>
 
-<div class="footer">Made with ❤️ by <span>Faizan Khan</span></div>
-<script>
-const MASTER_ID = "CPF";
-const MASTER_PASS = "Care@12345";
+<!-- optional admin worker column controls (if you used previously) -->
+<div id="workerColumnControls" class="hidden" style="margin-top:8px;">
+  <button onclick="addWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Column</button>
+  <button onclick="deleteWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">🗑 Delete Column</button>
+  <button onclick="saveWorkerColumns()" style="margin:5px;padding:6px 12px;background:#198754;color:#fff;border:none;border-radius:4px;cursor:pointer;">💾 Save Changes</button>
+</div>
 
+<div class="footer">Made with ❤️ by <span>Faizan Khan</span></div>
+
+<script>
+const ADMIN_PASSWORD = '12341234';
+let isAdmin = false;
+let workers = [];
+let camps = [];
+let campData = {};
+let activeFilters = {};
+let clientChartInstance = null;
+  
+  // === CAMP USER LOGIN CREDENTIALS ===
 const CAMP_USERS = {
   "New bawadi": { user: "bawadi1", pass: "1234" },
   "CP 1": { user: "cp1", pass: "cp1pass" },
@@ -127,83 +173,75 @@ const CAMP_USERS = {
   "CP 3": { user: "cp3", pass: "cp3pass" }
 };
 
-let isAdmin = false;
-let currentUserCamp = null;
-let workers = [];
-let camps = [];
-let campData = {};
-let activeFilters = {};
-let clientChartInstance = null;
 
+// ---------- API Save / Load ----------
 async function apiGetData() {
   try {
     const r = await fetch('/api/saveData');
-    if (!r.ok) throw new Error();
+    if(!r.ok) throw new Error('Failed to load data');
     return await r.json();
-  } catch {
-    return { workers: [], camps: [], campData: {} };
-  }
+  } catch(e){ console.error(e); alert('Error loading data.'); return {workers:[], camps:[], campData:{}}; }
 }
-
 async function apiSaveData() {
   try {
     const r = await fetch('/api/saveData', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ workers, camps, campData })
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({workers, camps, campData})
     });
-    return await r.json();
-  } catch {
-    alert('⚠️ Save error');
-    return null;
-  }
+    const j = await r.json();
+    if(!r.ok) throw new Error(j.message||'Save failed');
+    return j;
+  } catch(e){ console.error(e); alert('Error saving data'); return null; }
 }
 
-function login() {
-  const user = loginUser.value.trim();
-  const pw = loginPw.value.trim();
+// ---------- Admin Login ----------
+let currentUserCamp = null;
 
-  // MASTER LOGIN
-  if (user === MASTER_ID && pw === MASTER_PASS) {
+function login() {
+  const user = document.getElementById("loginUser").value.trim();
+  const pw   = document.getElementById("loginPw").value.trim();
+
+  // --- Admin login ---
+  if (pw === ADMIN_PASSWORD) {
     isAdmin = true;
-    currentUserCamp = "MASTER";
-    editor.classList.remove("hidden");
-    loginBox.classList.add("hidden");
-    adminBox.classList.remove("hidden");
-    msg.innerText = "✅ Master Admin mode enabled (Full Control)";
-    document.getElementById("masterHiddenSection").classList.remove("hidden");
+    currentUserCamp = null;
+    editor.classList.remove('hidden');
+    loginBox.classList.add('hidden');
+    adminBox.classList.remove('hidden');
+    msg.innerText = "✅ Admin mode enabled";
     renderAll();
     return;
   }
 
-  // CAMP USERS LOGIN
-  for (const camp in CAMP_USERS) {
-    const creds = CAMP_USERS[camp];
-    if (creds.user === user && creds.pass === pw) {
-      isAdmin = false;
-      currentUserCamp = camp;
-      editor.classList.remove("hidden");
-      loginBox.classList.add("hidden");
-      adminBox.classList.remove("hidden");
-      msg.innerText = `✅ Logged in as Camp User (${camp})`;
-      document.getElementById("masterHiddenSection").classList.add("hidden");
-      renderAll();
-      return;
-    }
+  // --- Camp-specific user login ---
+  const campEntry = Object.entries(CAMP_USERS).find(([camp, creds]) =>
+    creds.user === user && creds.pass === pw
+  );
+
+  if (campEntry) {
+    const [campName] = campEntry;
+    isAdmin = false;
+    currentUserCamp = campName;
+    editor.classList.remove('hidden');
+    loginBox.classList.add('hidden');
+    adminBox.classList.remove('hidden');
+    msg.innerText = `✅ Logged in as ${user} (Camp: ${campName})`;
+    renderTable(campName);
+    return;
   }
 
-  alert("❌ Wrong User ID or Password!");
+  alert("❌ Invalid login credentials!");
 }
 
-function logout() {
-  isAdmin = false;
-  currentUserCamp = null;
-  editor.classList.add("hidden");
-  loginBox.classList.remove("hidden");
-  adminBox.classList.add("hidden");
+function logout(){
+  isAdmin=false;
+  editor.classList.add('hidden');
+  loginBox.classList.remove('hidden');
+  adminBox.classList.add('hidden');
   renderAll();
 }
 
+// ---------- Workers Table ----------
 function addWorker() {
   const w = {
     iq: f_iq.value.trim(),
@@ -215,67 +253,411 @@ function addWorker() {
     sponsor: f_sponsor.value.trim(),
     room: f_room.value.trim()
   };
+
   if (!w.iq || !w.name) return alert("IQAMA and Name required!");
 
+  // Restrict to user’s camp
   if (!isAdmin && currentUserCamp && w.camp !== currentUserCamp)
-    return alert(`❌ You can only add workers to your own camp: ${currentUserCamp}`);
+    return alert(`❌ You can only add workers to your own camp: "${currentUserCamp}"`);
 
   workers.push(w);
-  apiSaveData().then(r => { if (r) renderAll(); });
+  apiSaveData().then(r => { if (r) { msg.innerText = "✅ Worker added!"; renderAll(); } });
 }
 
 function deleteWorkerPrompt() {
   const iq = prompt("Enter IQAMA to delete:");
   if (!iq) return;
   const i = workers.findIndex(w => w.iq === iq);
-  if (i < 0) return alert("Not found!");
-  const w = workers[i];
-  if (!isAdmin && w.camp !== currentUserCamp)
-    return alert(`❌ Only delete from your camp: ${currentUserCamp}`);
-  if (confirm(`Delete ${w.name}?`)) {
-    workers.splice(i, 1);
-    apiSaveData().then(r => { if (r) renderAll(); });
+  if (i < 0) return alert("❌ IQAMA not found!");
+
+  const worker = workers[i];
+  if (!isAdmin && currentUserCamp && worker.camp !== currentUserCamp)
+    return alert(`❌ You can only delete workers from your own camp: "${currentUserCamp}"`);
+
+  workers.splice(i, 1);
+  apiSaveData().then(r => { if (r) { alert("🗑️ Worker deleted!"); renderAll(); } });
+}
+
+function deleteWorkerPrompt(){
+  const iq=prompt("Enter IQAMA to delete:");
+  if(!iq) return;
+  const i=workers.findIndex(w=>w.iq===iq);
+  if(i>=0){
+    workers.splice(i,1);
+    apiSaveData().then(r=>{if(r){alert("🗑️ Worker deleted!"); renderAll();}});
+  } else alert("❌ IQAMA not found!");
+}
+function updateCampDropdown(){
+  campSelect.innerHTML='';
+  camps.forEach(c=>{const o=document.createElement('option'); o.value=c; o.innerText=c; campSelect.appendChild(o);});
+}
+function renderTable(campFilter=''){
+  let filtered = workers.filter(w=>(!campFilter||w.camp===campFilter));
+  Object.keys(activeFilters).forEach(k=>{
+    if(activeFilters[k]?.length>0){
+      filtered = filtered.filter(w=>activeFilters[k].includes((w[k]||'').toString()));
+    }
+  });
+  let html = `<table><thead><tr>
+    <th>#</th><th>IQAMA</th><th>Name</th>
+    <th class='filter-arrow' onclick="toggleDropdown('camp')">Camp<div id='drop-camp' class='dropdown'></div></th>
+    <th class='filter-arrow' onclick="toggleDropdown('company')">Company<div id='drop-company' class='dropdown'></div></th>
+    <th class='filter-arrow' onclick="toggleDropdown('gender')">Gender<div id='drop-gender' class='dropdown'></div></th>
+    <th class='filter-arrow' onclick="toggleDropdown('nationality')">Nationality<div id='drop-nationality' class='dropdown'></div></th>
+    <th class='filter-arrow' onclick="toggleDropdown('sponsor')">Sponsor<div id='drop-sponsor' class='dropdown'></div></th>
+    <th>Room</th></tr></thead><tbody>`;
+  let count=1;
+  filtered.forEach(w=>{
+    html+=`<tr><td>${count++}</td><td>${w.iq}</td><td>${w.name}</td><td>${w.camp}</td><td>${w.company}</td><td>${w.gender}</td><td>${w.nationality}</td><td>${w.sponsor}</td><td>${w.room}</td></tr>`;
+  });
+  html+='</tbody></table>';
+  tableWrap.innerHTML=html;
+  // worker column controls shown only for admin (if used)
+  const ctrl = document.getElementById('workerColumnControls');
+  if (ctrl) ctrl.classList.toggle('hidden', !isAdmin);
+
+  buildDropdowns();
+}
+function buildDropdowns() {
+  const keys = ['camp', 'company', 'gender', 'nationality', 'sponsor'];
+  keys.forEach(k => {
+    const drop = document.getElementById('drop-' + k);
+    if (!drop) return;
+
+    // Ensure worker data exists before building
+    if (!workers || workers.length === 0) {
+      drop.innerHTML = "<em style='color:#888;font-size:12px;'>No workers</em>";
+      return;
+    }
+
+    // Get all unique values for this column
+    const values = [...new Set(
+      workers.map(w => (w[k] || '').trim()).filter(v => v && v !== '.')
+    )].sort();
+
+    // If still empty, show no-data text
+    if (values.length === 0) {
+      drop.innerHTML = "<em style='color:#888;font-size:12px;'>No data</em>";
+      return;
+    }
+
+    // Build dropdown list with checkboxes
+    let html = `<label><input type='checkbox' value='' onchange='filterChange("${k}", this)'> All</label>`;
+    values.forEach(v => {
+      const checked = activeFilters[k]?.includes(v) ? 'checked' : '';
+      html += `<label><input type='checkbox' value='${v}' ${checked} onchange='filterChange("${k}", this)'> ${v}</label>`;
+    });
+    drop.innerHTML = html;
+  });
+}
+
+function toggleDropdown(k){
+  const el=document.getElementById('drop-'+k);
+  document.querySelectorAll('.dropdown').forEach(d=>{if(d!==el)d.style.display='none';});
+  el.style.display=(el.style.display==='block')?'none':'block';
+}
+window.onclick=function(e){if(!e.target.closest('th')) document.querySelectorAll('.dropdown').forEach(d=>d.style.display='none');};
+function filterChange(k, el){
+  const val=el.value;
+  activeFilters[k]=activeFilters[k]||[];
+  if(val===''){activeFilters[k]=[]; renderTable(); return;}
+  if(el.checked) activeFilters[k].push(val);
+  else activeFilters[k]=activeFilters[k].filter(v=>v!==val);
+  renderTable();
+}
+
+// ---------- Client Summary (table + chart) ----------
+function renderClientSummary(){
+  const map={};
+  workers.forEach(w=>{map[w.company]=map[w.company]||{}; map[w.company][w.camp]=(map[w.company][w.camp]||0)+1;});
+  let html='<table><tr><th>Company</th>';
+  camps.forEach(c=>html+=`<th>${c}</th>`); html+='<th>Total</th></tr>';
+  let total=0;
+  for(const comp in map){
+    let sum=0;
+    html+=`<tr><td>${comp}</td>`;
+    camps.forEach(c=>{const val=map[comp][c]||0; sum+=val; html+=`<td>${val}</td>`;});
+    html+=`<td>${sum}</td></tr>`;
+    total+=sum;
+  }
+  html+=`<tr style="font-weight:bold;background:#cfe2ff;"><td>Total</td><td colspan="${Math.max(1,camps.length)}"></td><td>${total}</td></tr></table>`;
+  clientSummary.innerHTML=html;
+
+  // build chart data
+  const labels = Object.keys(map);
+  const data = labels.map(lbl => {
+    let s=0; camps.forEach(cp => { s += map[lbl][cp]||0; }); return s;
+  });
+
+  // destroy previous chart if exists
+  if(clientChartInstance) clientChartInstance.destroy();
+  const ctx = document.getElementById('clientChart').getContext('2d');
+  clientChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Workers',
+        data,
+        backgroundColor: '#004085'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { precision:0 } } }
+    }
+  });
+}
+
+// ---------- Camp Summary (Editable / Add Row / Column) ----------
+function getSavedHeaders(){
+  return (campData && Array.isArray(campData.__summaryHeaders) && campData.__summaryHeaders.length>0)
+    ? campData.__summaryHeaders.slice()
+    : ['Camp','Rooms','Total Beds','Available Beds','Male','Female','Total'];
+}
+
+function renderCampSummary(){
+  const headers=getSavedHeaders();
+  let html='<table id="campSummaryTable"><thead><tr>';
+  headers.forEach(h=>{html+=`<th ${isAdmin?'contenteditable="true"':''}>${h}</th>`;});
+  html+='</tr></thead><tbody>';
+  let totalWorkers=0;
+  camps.forEach(c=>{
+    const total=workers.filter(w=>w.camp===c).length;
+    const male=workers.filter(w=>w.camp===c && (w.gender||'').toLowerCase().startsWith('m')).length;
+    const female=workers.filter(w=>w.camp===c && (w.gender||'').toLowerCase().startsWith('f')).length;
+    const data=campData[c]||{beds:0,rooms:0,meta:{}};
+    const avail=Math.max((Number(data.beds)||0)-total,0);
+    totalWorkers+=total;
+    html+='<tr>';
+    headers.forEach(h=>{
+      const key=h.trim().toLowerCase();
+      let val='';
+      if(key==='camp') val=c;
+      else if(key==='rooms'||key==='room') val=data.rooms||0;
+      else if(key==='total beds'||key==='beds'||key==='total_beds') val=data.beds||0;
+      else if(key==='available beds'||key==='available') val=avail;
+      else if(key==='male') val=male;
+      else if(key==='female') val=female;
+      else if(key==='total') val=total;
+      else val=(data.meta && data.meta[h])!==undefined?data.meta[h]:'';
+      html+=`<td ${isAdmin?'contenteditable="true"':''}>${val}</td>`;
+    });
+    html+='</tr>';
+  });
+  html+=`<tr style="font-weight:bold;background:#cfe2ff;"><td colspan="${Math.max(1,headers.length-1)}">Total Workers</td><td>${totalWorkers}</td></tr>`;
+  html+='</tbody></table>';
+
+  if(isAdmin){
+    html+=`<div style="margin-top:8px;">
+      <button onclick="addRow()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Row</button>
+      <button onclick="deleteRow()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">🗑 Delete Row</button>
+      <button onclick="addColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Column</button>
+      <button onclick="deleteColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">🗑 Delete Column</button>
+      <button onclick="saveCampSummary()" style="margin:5px;padding:6px 12px;background:#198754;color:#fff;border:none;border-radius:4px;cursor:pointer;">💾 Save Changes</button>
+    </div>`;
+  }
+
+  campSummary.innerHTML=html;
+}
+
+// ---------- Camp Summary Row / Column Functions ----------
+function addRow(){
+  const tbl=document.getElementById('campSummaryTable');
+  if(!tbl) return;
+  const tbody=tbl.tBodies[0];
+  const headers=tbl.tHead.rows[0].cells.length;
+  let insertIndex=tbody.rows.length-1; // before total row
+  const row=tbody.insertRow(insertIndex);
+  for(let i=0;i<headers;i++){ const cell=row.insertCell(i); cell.contentEditable="true"; cell.innerText=(i===0?'New Camp':''); }
+}
+function deleteRow(){
+  const tbl=document.getElementById('campSummaryTable');
+  if(!tbl) return;
+  const tbody=tbl.tBodies[0];
+  if(!tbody || tbody.rows.length<=1) return alert('Cannot delete last row.');
+  tbody.deleteRow(tbody.rows.length-2); // delete last data row before total
+}
+function addColumn(){
+  const tbl=document.getElementById('campSummaryTable');
+  if(!tbl) return;
+  const colCount=tbl.rows[0].cells.length;
+  const th=document.createElement('th'); th.contentEditable="true"; th.innerText='New Column';
+  tbl.rows[0].appendChild(th);
+  const tbody=tbl.tBodies[0];
+  for(let r=0;r<tbody.rows.length;r++){ const row=tbody.rows[r]; const cell=row.insertCell(row.cells.length); cell.contentEditable="true"; cell.innerText=''; }
+}
+function deleteColumn(){
+  const tbl=document.getElementById('campSummaryTable');
+  if(!tbl) return;
+  if(tbl.rows[0].cells.length<=2) return alert('Cannot delete last column.');
+  for(let r=0;r<tbl.rows.length;r++){ const row=tbl.rows[r]; if(row.cells.length>0) row.deleteCell(row.cells.length-1); }
+}
+function saveCampSummary(){
+  const tbl=document.getElementById('campSummaryTable');
+  if(!tbl) return alert('Nothing to save.');
+  const headers=[]; for(let i=0;i<tbl.tHead.rows[0].cells.length;i++) headers.push(tbl.tHead.rows[0].cells[i].innerText.trim()||`Col${i}`);
+  const tbody=tbl.tBodies[0]; if(!tbody) return;
+  const rows=[];
+  for(let r=0;r<tbody.rows.length;r++){
+    const row=tbody.rows[r]; if(row.innerText.includes('Total Workers')) break;
+    const cells=[]; for(let c=0;c<row.cells.length;c++) cells.push(row.cells[c].innerText.trim());
+    if(!cells[0]) continue;
+    rows.push(cells);
+  }
+  const newCamps=[]; const newCampData={};
+  rows.forEach(cells=>{
+    const name=cells[0].trim(); if(!name) return;
+    newCamps.push(name);
+    const existing=campData[name]||{beds:0,rooms:0,meta:{}};
+    const entry={beds:Number(existing.beds)||0,rooms:Number(existing.rooms)||0,meta:Object.assign({},existing.meta||{})};
+    for(let i=1;i<headers.length;i++){
+      const h=headers[i].trim(); const val=cells[i]!==undefined?cells[i]:''; const key=h.toLowerCase();
+      if(key==='rooms'||key==='room') entry.rooms=Number(val)||0;
+      else if(key==='total beds'||key==='beds'||key==='total_beds') entry.beds=Number(val)||0;
+      else entry.meta[h]=val;
+    }
+    newCampData[name]=entry;
+  });
+  newCampData.__summaryHeaders=headers;
+  camps=newCamps;
+  const preserved={}; for(const k in campData){if(!newCampData[k] && k!=='__summaryHeaders') preserved[k]=campData[k];}
+  campData=Object.assign({},preserved,newCampData); campData.__summaryHeaders=headers;
+  apiSaveData().then(res=>{if(res){alert('✅ Camp summary saved.'); updateCampDropdown(); renderAll();} else alert('⚠️ Save failed.');});
+}
+
+// ---------- CSV ----------
+function exportCSV(){
+  if(workers.length===0) return alert("No data to export!");
+  const h=["iq","name","camp","company","gender","nationality","sponsor","room"];
+  const r=workers.map(w=>h.map(x=>`"${(w[x]||"").replace(/"/g,'""')}"`).join(","));
+  const csv=h.join(",")+"\n"+r.join("\n");
+  const b=new Blob([csv],{type:"text/csv"});
+  const u=URL.createObjectURL(b);
+  const a=document.createElement("a"); a.href=u; a.download="workers.csv"; a.click(); URL.revokeObjectURL(u);
+}
+function importCSV(){
+  const f=document.getElementById("csvFile").files[0]; if(!f) return alert("Select CSV file!");
+  const r=new FileReader();
+  r.onload=function(e){
+    const lines=e.target.result.split("\n").map(l=>l.trim()).filter(l=>l);
+    const headers=lines.shift().split(",").map(h=>h.trim().replace(/"/g,""));
+    const nw=lines.map(l=>{const v=l.split(",").map(x=>x.replace(/^"|"$/g,"").trim()); const o={}; headers.forEach((h,i)=>o[h]=v[i]||""); return o; });
+    if(confirm(`Import ${nw.length} workers?`)){ workers=nw; apiSaveData().then(x=>{if(x){alert("✅ CSV Imported!"); renderAll();}});}
+  };
+  r.readAsText(f);
+}
+
+// ---------- Helpers ----------
+async function loadData(){
+  const d=await apiGetData();
+  workers=d.workers||[]; camps=d.camps||[]; campData=d.campData||{};
+  updateCampDropdown(); renderAll();
+}
+function renderAll(){updateCampDropdown(); renderTable(); renderClientSummary(); renderCampSummary();}
+function showSelectedCamp(){const s=campSelect.value; if(s) renderTable(s); else renderTable();}
+
+// If you have functions addNewCamp, deleteCamp, searchByIqama etc. defined elsewhere previously, keep them.
+// If not, simple placeholders so UI doesn't error (you can replace with your real implementations)
+function addNewCamp(){ const name = (newCampName.value||'').trim(); if(!name) return alert('Enter camp name'); if(!camps.includes(name)) camps.push(name); apiSaveData().then(r=>{ if(r){ alert('Camp added'); updateCampDropdown(); renderAll(); } }); }
+function deleteCamp(){ const name = (newCampName.value||'').trim(); if(!name) return alert('Enter camp name to delete'); const i=camps.indexOf(name); if(i>=0){ camps.splice(i,1); delete campData[name]; apiSaveData().then(r=>{ if(r){ alert('Camp deleted'); updateCampDropdown(); renderAll(); } }); } else alert('Camp not found'); }
+function searchByIqama(){ const q = (searchIqama.value||'').trim(); if(!q) return alert('Enter IQAMA'); const found = workers.find(w=>w.iq===q); searchResult.innerText = found ? `${found.name} — ${found.company} — ${found.camp} — Room ${found.room || ''}` : 'Not found'; }
+
+// Optional worker column functions (if used)
+function addWorkerColumn() {
+  if(!isAdmin) return alert("Only admin can add columns.");
+  const table = document.querySelector("#tableWrap table");
+  if(!table) return alert("No worker table found.");
+  const headerRow = table.tHead.rows[0];
+  const newTh = document.createElement("th");
+  newTh.contentEditable = "true";
+  newTh.innerText = "New Column";
+  headerRow.appendChild(newTh);
+  for(let r=0;r<table.tBodies[0].rows.length;r++){
+    const cell = table.tBodies[0].rows[r].insertCell();
+    cell.contentEditable = "true";
+    cell.innerText = "";
   }
 }
-function verifyMaster() {
-  const pw = masterPw.value.trim();
-  const msg = masterMsg;
-  if (pw === MASTER_PASS) {
-    isAdmin = true;
-    currentUserCamp = "MASTER";
-    document.getElementById("masterHiddenSection").classList.remove("hidden");
-    msg.innerText = "✅ Master verified. Full control unlocked.";
-    renderAll();
+function deleteWorkerColumn() {
+  if(!isAdmin) return alert("Only admin can delete columns.");
+  const table = document.querySelector("#tableWrap table");
+  if(!table) return alert("No worker table found.");
+  const colCount = table.tHead.rows[0].cells.length;
+  if(colCount <= 2) return alert("Cannot delete essential columns.");
+  for(let r=0;r<table.rows.length;r++){
+    table.rows[r].deleteCell(colCount-1);
+  }
+}
+function saveWorkerColumns(){
+  if(!isAdmin) return alert("Only admin can save changes.");
+  const table = document.querySelector("#tableWrap table");
+  if(!table) return alert("No table found.");
+  const headers = Array.from(table.tHead.rows[0].cells).map(th => th.innerText.trim());
+  const rows = [];
+  for(let r=0;r<table.tBodies[0].rows.length;r++){
+    const cells = Array.from(table.tBodies[0].rows[r].cells).map(td => td.innerText.trim());
+    rows.push(cells);
+  }
+  // store columns as metadata (safe for future)
+  campData.__workerColumns = {headers, rows};
+  apiSaveData().then(r=>{
+    if(r) alert("✅ Columns saved successfully!");
+    else alert("⚠️ Save failed.");
+  });
+}
+const MASTER_PASSWORD = 'Care@12345'; // <-- set your desired password
+
+  function verifyMaster() {
+  const pw = document.getElementById('masterPw').value;
+  const msg = document.getElementById('masterMsg');
+  const ctrl = document.getElementById('masterControls');
+  const hiddenSection = document.getElementById('masterHiddenSection');
+  
+  if (pw === MASTER_PASSWORD) {
+    ctrl.classList.remove('hidden');
+    hiddenSection.classList.remove('hidden');
+    msg.innerText = "✅ Master verified! Hidden sections are now visible.";
   } else {
-    msg.innerText = "❌ Wrong master password.";
+    ctrl.classList.add('hidden');
+    hiddenSection.classList.add('hidden');
+    msg.innerText = "❌ Wrong master password!";
   }
 }
 
-// Simple versions of these — keep your originals if needed
-function renderAll() { renderTable(); }
-function renderTable() {
-  let html = `<table><thead><tr><th>#</th><th>IQAMA</th><th>Name</th><th>Camp</th><th>Company</th><th>Gender</th><th>Nationality</th><th>Sponsor</th><th>Room</th></tr></thead><tbody>`;
-  let count = 1;
-  workers.forEach(w => html += `<tr><td>${count++}</td><td>${w.iq}</td><td>${w.name}</td><td>${w.camp}</td><td>${w.company}</td><td>${w.gender}</td><td>${w.nationality}</td><td>${w.sponsor}</td><td>${w.room}</td></tr>`);
-  html += `</tbody></table>`;
-  tableWrap.innerHTML = html;
+function addCustomWorkerColumn() {
+  const name = document.getElementById('newWorkerColName').value.trim();
+  const msg = document.getElementById('newColMsg');
+  if (!name) return alert("Enter a column name!");
+  
+  const table = document.querySelector("#tableWrap table");
+  if (!table) {
+    return alert("No worker table found!");
+  }
+
+  // Add header
+  const headerRow = table.tHead.rows[0];
+  const newTh = document.createElement("th");
+  newTh.contentEditable = "true";
+  newTh.innerText = name;
+  headerRow.appendChild(newTh);
+
+  // Add empty cells to all rows
+  for (let r = 0; r < table.tBodies[0].rows.length; r++) {
+    const cell = table.tBodies[0].rows[r].insertCell();
+    cell.contentEditable = "true";
+    cell.innerText = "";
+  }
+
+  // Save column immediately
+  saveWorkerColumns();
+  msg.innerText = `✅ Column "${name}" added!`;
+  document.getElementById('newWorkerColName').value = '';
 }
 
-function searchByIqama() {
-  const q = searchIqama.value.trim();
-  const f = workers.find(w => w.iq === q);
-  searchResult.innerText = f ? `${f.name} — ${f.camp} — ${f.company}` : "Not found";
-}
-
-async function loadData() {
-  const d = await apiGetData();
-  workers = d.workers || [];
-  camps = d.camps || [];
-  campData = d.campData || {};
-  renderAll();
-}
+// initial load
 loadData();
 </script>
 </body>
 </html>
-
