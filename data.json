@@ -4045,8 +4045,7 @@
     "New bawadi",
     "G. Bawadi",
     "Old rabwa",
-    "B.sultan",
-    "New Camp"
+    "B.sultan"
   ],
   "campData": {
     "New bawadi": {
@@ -4055,8 +4054,7 @@
       "meta": {
         "MALE": "137",
         "FEMALE": "0",
-        "TOTAL": "137",
-        "NEW COLUMN": ""
+        "TOTAL": "137"
       }
     },
     "G. Bawadi": {
@@ -4065,8 +4063,7 @@
       "meta": {
         "MALE": "0",
         "FEMALE": "0",
-        "TOTAL": "138",
-        "NEW COLUMN": ""
+        "TOTAL": "138"
       }
     },
     "Old rabwa": {
@@ -4075,8 +4072,7 @@
       "meta": {
         "MALE": "83",
         "FEMALE": "0",
-        "TOTAL": "83",
-        "NEW COLUMN": ""
+        "TOTAL": "83"
       }
     },
     "B.sultan": {
@@ -4085,18 +4081,7 @@
       "meta": {
         "MALE": "44",
         "FEMALE": "0",
-        "TOTAL": "44",
-        "NEW COLUMN": ""
-      }
-    },
-    "New Camp": {
-      "beds": 0,
-      "rooms": 0,
-      "meta": {
-        "MALE": "",
-        "FEMALE": "",
-        "TOTAL": "",
-        "NEW COLUMN": ""
+        "TOTAL": "44"
       }
     },
     "__summaryHeaders": [
@@ -4106,9 +4091,7 @@
       "AVAILABLE BEDS",
       "MALE",
       "FEMALE",
-      "TOTAL",
-      "NEW COLUMN",
-      "NEW COLUMN"
+      "TOTAL"
     ]
   }
 }
