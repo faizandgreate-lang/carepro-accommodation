@@ -4046,7 +4046,7 @@
         "AC": "33",
         "WASHING": "1",
         "SHOE RACK": "8",
-        "WASHING M": ""
+        "FIRE EXT": "8"
       }
     },
     "G. Bawadi": {
@@ -4067,7 +4067,7 @@
         "AC": "25",
         "WASHING": "6",
         "SHOE RACK": "7",
-        "WASHING M": ""
+        "FIRE EXT": "6"
       }
     },
     "Old rabwa": {
@@ -4088,7 +4088,7 @@
         "AC": "22",
         "WASHING": "",
         "SHOE RACK": "7",
-        "WASHING M": ""
+        "FIRE EXT": "4"
       }
     },
     "B.sultan": {
@@ -4097,7 +4097,7 @@
       "meta": {
         "MALE": "44",
         "FEMALE": "0",
-        "TOTAL": "",
+        "TOTAL": "44",
         "LED": "",
         "BLANKET": "",
         "PELLOW": "",
@@ -4109,7 +4109,7 @@
         "AC": "",
         "WASHING": "",
         "SHOE RACK": "",
-        "WASHING M": ""
+        "FIRE EXT": ""
       }
     },
     "__summaryHeaders": [
@@ -4131,7 +4131,7 @@
       "AC",
       "WASHING",
       "SHOE RACK",
-      "WASHING M"
+      "FIRE EXT"
     ]
   }
 }
