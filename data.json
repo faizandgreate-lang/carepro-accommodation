@@ -4053,13 +4053,7 @@
         "#",
         "IQAMA",
         "NAME",
-        "CAMP",
-        "COMPANY",
-        "GENDER",
-        "NATIONALITY",
-        "SPONSOR",
-        "ROOM",
-        "NEW COLUMN"
+        "CAMP"
       ],
       "rows": []
     },
