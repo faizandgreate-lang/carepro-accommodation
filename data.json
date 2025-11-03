@@ -1391,7 +1391,9 @@
       "room": "701"
     }
   ],
-  "camps": [],
+  "camps": [
+    "B.SULTAN"
+  ],
   "campData": {
     "__workerColumns": {
       "headers": [
