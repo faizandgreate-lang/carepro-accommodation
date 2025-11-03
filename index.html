@@ -249,18 +249,39 @@ function renderTable(campFilter=''){
 
   buildDropdowns();
 }
-function buildDropdowns(){
-  ['camp','company','gender','nationality','sponsor'].forEach(k=>{
-    const values=[...new Set(workers.map(w=>(w[k]||'').trim()).filter(v=>v))].sort();
-    const drop=document.getElementById('drop-'+k);
-    if(!drop) return;
-    drop.innerHTML=`<label><input type='checkbox' value='' onchange='filterChange("${k}", this)'> All</label>`;
-    values.forEach(v=>{
-      const checked=activeFilters[k]?.includes(v)?'checked':'';
-      drop.innerHTML+=`<label><input type='checkbox' value='${v}' ${checked} onchange='filterChange("${k}", this)'> ${v}</label>`;
+function buildDropdowns() {
+  const keys = ['camp', 'company', 'gender', 'nationality', 'sponsor'];
+  keys.forEach(k => {
+    const drop = document.getElementById('drop-' + k);
+    if (!drop) return;
+
+    // Ensure worker data exists before building
+    if (!workers || workers.length === 0) {
+      drop.innerHTML = "<em style='color:#888;font-size:12px;'>No workers</em>";
+      return;
+    }
+
+    // Get all unique values for this column
+    const values = [...new Set(
+      workers.map(w => (w[k] || '').trim()).filter(v => v && v !== '.')
+    )].sort();
+
+    // If still empty, show no-data text
+    if (values.length === 0) {
+      drop.innerHTML = "<em style='color:#888;font-size:12px;'>No data</em>";
+      return;
+    }
+
+    // Build dropdown list with checkboxes
+    let html = `<label><input type='checkbox' value='' onchange='filterChange("${k}", this)'> All</label>`;
+    values.forEach(v => {
+      const checked = activeFilters[k]?.includes(v) ? 'checked' : '';
+      html += `<label><input type='checkbox' value='${v}' ${checked} onchange='filterChange("${k}", this)'> ${v}</label>`;
     });
+    drop.innerHTML = html;
   });
 }
+
 function toggleDropdown(k){
   const el=document.getElementById('drop-'+k);
   document.querySelectorAll('.dropdown').forEach(d=>{if(d!==el)d.style.display='none';});
