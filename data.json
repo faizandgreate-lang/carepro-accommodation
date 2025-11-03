@@ -1391,9 +1391,7 @@
       "room": "701"
     }
   ],
-  "camps": [
-    "New Camp"
-  ],
+  "camps": [],
   "campData": {
     "__workerColumns": {
       "headers": [
