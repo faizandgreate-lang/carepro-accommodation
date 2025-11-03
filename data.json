@@ -4045,23 +4045,14 @@
     "New bawadi",
     "G. Bawadi",
     "Old rabwa",
-    "B.sultan"
+    "B.sultan",
+    "New Camp"
   ],
   "campData": {
-    "__workerColumns": {
-      "headers": [
-        "#",
-        "IQAMA",
-        "NAME",
-        "CAMP"
-      ],
-      "rows": []
-    },
     "New bawadi": {
       "beds": 0,
       "rooms": 0,
       "meta": {
-        "AVAILABLE BEDS": "0",
         "MALE": "137",
         "FEMALE": "0",
         "TOTAL": "137",
@@ -4069,10 +4060,9 @@
       }
     },
     "G. Bawadi": {
-      "beds": 137,
+      "beds": 0,
       "rooms": 25,
       "meta": {
-        "AVAILABLE BEDS": "0",
         "MALE": "0",
         "FEMALE": "0",
         "TOTAL": "138",
@@ -4083,10 +4073,9 @@
       "beds": 0,
       "rooms": 0,
       "meta": {
-        "AVAILABLE BEDS": "0",
-        "MALE": "88",
+        "MALE": "83",
         "FEMALE": "0",
-        "TOTAL": "88",
+        "TOTAL": "83",
         "NEW COLUMN": ""
       }
     },
@@ -4094,10 +4083,19 @@
       "beds": 0,
       "rooms": 0,
       "meta": {
-        "AVAILABLE BEDS": "0",
         "MALE": "44",
         "FEMALE": "0",
         "TOTAL": "44",
+        "NEW COLUMN": ""
+      }
+    },
+    "New Camp": {
+      "beds": 0,
+      "rooms": 0,
+      "meta": {
+        "MALE": "",
+        "FEMALE": "",
+        "TOTAL": "",
         "NEW COLUMN": ""
       }
     },
@@ -4109,6 +4107,7 @@
       "MALE",
       "FEMALE",
       "TOTAL",
+      "NEW COLUMN",
       "NEW COLUMN"
     ]
   }
