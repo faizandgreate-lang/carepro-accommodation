@@ -416,51 +416,69 @@ function getSavedHeaders(){
     ? campData.__summaryHeaders.slice()
     : ['Camp','Rooms','Total Beds','Available Beds','Male','Female','Total'];
 }
-
-function renderCampSummary(){
-  const headers=getSavedHeaders();
-  let html='<table id="campSummaryTable"><thead><tr>';
-  headers.forEach(h=>{html+=`<th ${isAdmin?'contenteditable="true"':''}>${h}</th>`;});
-  html+='</tr></thead><tbody>';
-  let totalWorkers=0;
-  camps.forEach(c=>{
-    const total=workers.filter(w=>w.camp===c).length;
-    const male=workers.filter(w=>w.camp===c && (w.gender||'').toLowerCase().startsWith('m')).length;
-    const female=workers.filter(w=>w.camp===c && (w.gender||'').toLowerCase().startsWith('f')).length;
-    const data=campData[c]||{beds:0,rooms:0,meta:{}};
-    const avail=Math.max((Number(data.beds)||0)-total,0);
-    totalWorkers+=total;
-    html+='<tr>';
-    headers.forEach(h=>{
-      const key=h.trim().toLowerCase();
-      let val='';
-      if(key==='camp') val=c;
-      else if(key==='rooms'||key==='room') val=data.rooms||0;
-      else if(key==='total beds'||key==='beds'||key==='total_beds') val=data.beds||0;
-      else if(key==='available beds'||key==='available') val=avail;
-      else if(key==='male') val=male;
-      else if(key==='female') val=female;
-      else if(key==='total') val=total;
-      else val=(data.meta && data.meta[h])!==undefined?data.meta[h]:'';
-      html+=`<td ${isAdmin?'contenteditable="true"':''}>${val}</td>`;
-    });
-    html+='</tr>';
+function renderCampSummary() {
+  const headers = getSavedHeaders();
+  let html = '<table id="campSummaryTable"><thead><tr>';
+  headers.forEach(h => {
+    html += `<th ${isAdmin ? 'contenteditable="true"' : ''}>${h}</th>`;
   });
-  html+=`<tr style="font-weight:bold;background:#cfe2ff;"><td colspan="${Math.max(1,headers.length-1)}">Total Workers</td><td>${totalWorkers}</td></tr>`;
-  html+='</tbody></table>';
+  html += '</tr></thead><tbody>';
 
-  if(isAdmin){
-    html+=`<div style="margin-top:8px;">
-      <button onclick="addRow()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Row</button>
-      <button onclick="deleteRow()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">🗑 Delete Row</button>
-      <button onclick="addColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Column</button>
-      <button onclick="deleteColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">🗑 Delete Column</button>
-      <button onclick="saveCampSummary()" style="margin:5px;padding:6px 12px;background:#198754;color:#fff;border:none;border-radius:4px;cursor:pointer;">💾 Save Changes</button>
-    </div>`;
+  let totalWorkers = 0;
+  camps.forEach(c => {
+    const total = workers.filter(w => w.camp === c).length;
+    const male = workers.filter(w => w.camp === c && (w.gender || '').toLowerCase().startsWith('m')).length;
+    const female = workers.filter(w => w.camp === c && (w.gender || '').toLowerCase().startsWith('f')).length;
+    const data = campData[c] || { beds: 0, rooms: 0, meta: {} };
+    const avail = Math.max((Number(data.beds) || 0) - total, 0);
+    totalWorkers += total;
+
+    html += '<tr>';
+    headers.forEach(h => {
+      const key = h.trim().toLowerCase();
+      let val = '';
+      if (key === 'camp') val = c;
+      else if (key === 'rooms' || key === 'room') val = data.rooms || 0;
+      else if (key === 'total beds' || key === 'beds' || key === 'total_beds') val = data.beds || 0;
+      else if (key === 'available beds' || key === 'available') val = avail;
+      else if (key === 'male') val = male;
+      else if (key === 'female') val = female;
+      else if (key === 'total') val = total;
+      else val = (data.meta && data.meta[h]) !== undefined ? data.meta[h] : '';
+      html += `<td ${isAdmin ? 'contenteditable="true"' : ''}>${val}</td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += `<tr style="font-weight:bold;background:#cfe2ff;">
+    <td colspan="${Math.max(1, headers.length - 1)}">Total Workers</td>
+    <td>${totalWorkers}</td>
+  </tr>`;
+  html += '</tbody></table>';
+
+  if (isAdmin) {
+    html += `
+      <div id="campControls" style="margin-top:8px;">
+        <button id="addRowBtn" class="btn">➕ Add Row</button>
+        <button id="deleteRowBtn" class="btn">🗑 Delete Row</button>
+        <button id="addColBtn" class="btn">➕ Add Column</button>
+        <button id="deleteColBtn" class="btn">🗑 Delete Column</button>
+        <button id="saveBtn" class="btn">💾 Save Changes</button>
+      </div>`;
   }
 
-  campSummary.innerHTML=html;
+  campSummary.innerHTML = html;
+
+  // === Rebind events after render ===
+  if (isAdmin) {
+    document.getElementById('addRowBtn').onclick = addRow;
+    document.getElementById('deleteRowBtn').onclick = deleteRow;
+    document.getElementById('addColBtn').onclick = addColumn;
+    document.getElementById('deleteColBtn').onclick = deleteColumn;
+    document.getElementById('saveBtn').onclick = saveCampSummary;
+  }
 }
+
 
 // ---------- Camp Summary Row / Column Functions ----------
 function addRow(){
