@@ -267,15 +267,28 @@ function addWorker() {
 function deleteWorkerPrompt() {
   const iq = prompt("Enter IQAMA to delete:");
   if (!iq) return;
+
   const i = workers.findIndex(w => w.iq === iq);
   if (i < 0) return alert("❌ IQAMA not found!");
 
   const worker = workers[i];
-  if (!isAdmin && currentUserCamp && worker.camp !== currentUserCamp)
-    return alert(`❌ You can only delete workers from your own camp: "${currentUserCamp}"`);
+
+  // Restrict delete permission for camp users
+  if (!isAdmin && currentUserCamp && worker.camp !== currentUserCamp) {
+    alert(`❌ You can only delete workers from your own camp: "${currentUserCamp}"`);
+    return;
+  }
+
+  // Confirm delete
+  if (!confirm(`Are you sure you want to delete worker "${worker.name}" from camp "${worker.camp}"?`)) return;
 
   workers.splice(i, 1);
-  apiSaveData().then(r => { if (r) { alert("🗑️ Worker deleted!"); renderAll(); } });
+  apiSaveData().then(r => {
+    if (r) {
+      alert("🗑️ Worker deleted successfully!");
+      renderAll();
+    }
+  });
 }
 
 function deleteWorkerPrompt(){
