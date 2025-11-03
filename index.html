@@ -165,14 +165,6 @@ let campData = {};
 let activeFilters = {};
 let clientChartInstance = null;
   
-  // === CAMP USER LOGIN CREDENTIALS ===
-const CAMP_USERS = {
-  "New bawadi": { user: "bawadi1", pass: "1234" },
-  "CP 1": { user: "cp1", pass: "cp1pass" },
-  "CP 2": { user: "cp2", pass: "cp2pass" },
-  "CP 3": { user: "cp3", pass: "cp3pass" }
-};
-
 
 // ---------- API Save / Load ----------
 async function apiGetData() {
@@ -214,7 +206,6 @@ function login() {
     return;
   }
 
-  // === CAMP USER LOGIN ===
  // === CAMP USERS LIST ===
 const CAMP_USERS = {
   "New bawadi": { user: "bawadi1", pass: "1234" },
@@ -307,16 +298,6 @@ function deleteWorkerPrompt() {
       renderAll();
     }
   });
-}
-
-function deleteWorkerPrompt(){
-  const iq=prompt("Enter IQAMA to delete:");
-  if(!iq) return;
-  const i=workers.findIndex(w=>w.iq===iq);
-  if(i>=0){
-    workers.splice(i,1);
-    apiSaveData().then(r=>{if(r){alert("🗑️ Worker deleted!"); renderAll();}});
-  } else alert("❌ IQAMA not found!");
 }
 function updateCampDropdown(){
   campSelect.innerHTML='';
