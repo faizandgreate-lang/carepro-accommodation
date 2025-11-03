@@ -6392,10 +6392,10 @@
       }
     },
     "G. Bawadi": {
-      "beds": 157,
+      "beds": 137,
       "rooms": 25,
       "meta": {
-        "AVAILABLE BEDS": "0",
+        "AVAILABLE BEDS": "",
         "MALE": "0",
         "FEMALE": "0",
         "TOTAL": "138",
