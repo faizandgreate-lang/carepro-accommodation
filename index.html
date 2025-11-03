@@ -663,10 +663,18 @@ const MASTER_PASSWORD = 'Care@12345'; // <-- set your desired password
     ctrl.classList.remove('hidden');
     hiddenSection.classList.remove('hidden');
     msg.innerText = "✅ Master verified! Hidden sections are now visible.";
+    // Show Camp Summary controls when master verified
+const campControls = document.getElementById('campControls');
+if (campControls) campControls.classList.remove('hidden');
+
   } else {
     ctrl.classList.add('hidden');
     hiddenSection.classList.add('hidden');
     msg.innerText = "❌ Wrong master password!";
+    // Hide Camp Summary controls when wrong password
+const campControls = document.getElementById('campControls');
+if (campControls) campControls.classList.add('hidden');
+
   }
 }
 
