@@ -32,27 +32,43 @@
 
 <h1>🏠 CARE-PRO ACCOMMODATION</h1>
 
-<div style="margin-bottom:15px; display:flex; gap:10px; align-items:center;">
-  <!-- Admin login -->
-  <span id="loginBox">
-  <input type="text" id="loginUser" placeholder="User ID">
-<input type="password" id="loginPw" placeholder="Password">
-<button onclick="login()">Login</button>
+<!-- === Top Control Bar === -->
+<div style="margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
+  
+  <!-- Left: Login / Logout -->
+  <div>
+    <span id="loginBox">
+      <input type="text" id="loginUser" placeholder="User ID">
+      <input type="password" id="loginPw" placeholder="Password">
+      <button onclick="login()">Login</button>
+    </span>
 
-  </span>
-  
-  <span id="adminBox" class="hidden">
-    <button onclick="logout()">Logout</button>
-  </span>
-  
-  <!-- Make CV button always visible -->
-  <a href="https://linux-aios.github.io/care-pro-cv-generator-by-faizan/" target="_blank">
-    <button style="background:#198754;color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;">
-      Make CV
-    </button>
-  </a>
+    <span id="adminBox" class="hidden">
+      <button onclick="logout()">Logout</button>
+    </span>
+  </div>
+
+  <!-- Right: Make CV + Password -->
+  <div style="display:flex; align-items:center; gap:10px;">
+    <a href="https://linux-aios.github.io/care-pro-cv-generator-by-faizan/" target="_blank">
+      <button style="background:#198754;color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;">
+        Make CV
+      </button>
+    </a>
+
+    <div id="passwordBox" style="text-align:right;">
+      <label style="font-weight:600; color:#004085;">
+        Password:
+        <input type="password" id="masterPw" placeholder="Enter Password"
+               style="margin-left:6px; padding:4px 8px; border:1px solid #bbb; border-radius:4px;">
+      </label>
+      <button onclick="verifyMaster()" 
+              style="background:#004085; color:#fff; border:none; padding:5px 10px; border-radius:4px; margin-left:6px; cursor:pointer;">
+        Verify
+      </button>
+    </div>
+  </div>
 </div>
-
 
 <div id="editor" class="form hidden">
   <h4>🔧 ADMIN PANEL</h4>
