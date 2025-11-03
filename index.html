@@ -72,23 +72,15 @@
   <button onclick="deleteWorkerPrompt()">Delete by IQAMA</button>
   <div id="msg" style="color:green;margin-top:8px;font-weight:600;"></div>
 
-  <h4>🏕️ Manage Camps</h4>
-  <input id="newCampName" placeholder="Enter Camp Name">
-  <button onclick="addNewCamp()">Add Camp</button>
-  <button onclick="deleteCamp()">Delete Camp</button>
+  <!-- === Export Section (Visible to Everyone) === -->
+<h4>📤 Export Workers</h4>
+<button onclick="exportCSV()">Export Workers CSV</button>
+<p style="font-size:12px;color:gray">
+  CSV Format: iq,name,camp,company,gender,nationality,sponsor,room
+</p>
 
-  <h4>📤 Export / 📥 Import Workers</h4>
-  <button onclick="exportCSV()">Export Workers CSV</button><br><br>
-  <input type="file" id="csvFile" accept=".csv">
-  <button onclick="importCSV()">Import CSV</button>
-  <p style="font-size:12px;color:gray">CSV Format: iq,name,camp,company,gender,nationality,sponsor,room</p>
- <h4>📤 Export / 📥 Import Workers</h4>
-
-<!-- Everyone can see Export -->
-<button onclick="exportCSV()">Export Workers CSV</button><br><br>
-
-<!-- These stay hidden until master password is verified -->
-<div id="masterHiddenSection" class="hidden">
+<!-- === Hidden Section (Visible only after Master Password) === -->
+<div id="masterHiddenSection" class="hidden" style="margin-top:20px;">
 
   <h4>🏕️ Manage Camps</h4>
   <input id="newCampName" placeholder="Enter Camp Name">
@@ -98,19 +90,24 @@
   <h4>📥 Import Workers</h4>
   <input type="file" id="csvFile" accept=".csv">
   <button onclick="importCSV()">Import CSV</button>
-  <p style="font-size:12px;color:gray">
-    CSV Format: iq,name,camp,company,gender,nationality,sponsor,room
-  </p>
 
   <h4>➕ Add Worker Column</h4>
-  <label>Column Name: <input type="text" id="newWorkerColName" placeholder="Enter column name"></label>
+  <label>Column Name:
+    <input type="text" id="newWorkerColName" placeholder="Enter column name">
+  </label>
   <button onclick="addCustomWorkerColumn()">Add Column</button>
   <div id="newColMsg" style="color:green;margin-top:5px;font-weight:600;"></div>
 
+  <div id="masterControls" class="hidden" style="margin-top:12px;">
+    <button onclick="addWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">➕ Add Column</button>
+    <button onclick="deleteWorkerColumn()" style="margin:5px;padding:6px 12px;background:#004085;color:#fff;border:none;border-radius:4px;cursor:pointer;">🗑 Delete Column</button>
+    <button onclick="saveWorkerColumns()" style="margin:5px;padding:6px 12px;background:#198754;color:#fff;border:none;border-radius:4px;cursor:pointer;">💾 Save Changes</button>
+  </div>
 </div>
 
+<!-- === Master Password Input === -->
 <h4>🔑 Master Controls</h4>
-<label>Master Password: 
+<label>Master Password:
   <input type="password" id="masterPw" placeholder="Enter Master Password">
 </label>
 <button onclick="verifyMaster()">Verify</button>
