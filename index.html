@@ -35,8 +35,10 @@
 <div style="margin-bottom:15px; display:flex; gap:10px; align-items:center;">
   <!-- Admin login -->
   <span id="loginBox">
-    <input type="password" id="adminPw" placeholder="Enter Admin Password">
-    <button onclick="login()">Login</button>
+  <input type="text" id="loginUser" placeholder="User ID">
+<input type="password" id="loginPw" placeholder="Password">
+<button onclick="login()">Login</button>
+
   </span>
   
   <span id="adminBox" class="hidden">
@@ -162,6 +164,15 @@ let camps = [];
 let campData = {};
 let activeFilters = {};
 let clientChartInstance = null;
+  
+  // === CAMP USER LOGIN CREDENTIALS ===
+const CAMP_USERS = {
+  "New bawadi": { user: "bawadi1", pass: "1234" },
+  "CP 1": { user: "cp1", pass: "cp1pass" },
+  "CP 2": { user: "cp2", pass: "cp2pass" },
+  "CP 3": { user: "cp3", pass: "cp3pass" }
+};
+
 
 // ---------- API Save / Load ----------
 async function apiGetData() {
@@ -184,16 +195,44 @@ async function apiSaveData() {
 }
 
 // ---------- Admin Login ----------
-function login(){
-  if(adminPw.value===ADMIN_PASSWORD){
-    isAdmin=true;
+let currentUserCamp = null;
+
+function login() {
+  const user = document.getElementById("loginUser").value.trim();
+  const pw   = document.getElementById("loginPw").value.trim();
+
+  // --- Admin login ---
+  if (pw === ADMIN_PASSWORD) {
+    isAdmin = true;
+    currentUserCamp = null;
     editor.classList.remove('hidden');
     loginBox.classList.add('hidden');
     adminBox.classList.remove('hidden');
-    msg.innerText='Admin mode enabled';
+    msg.innerText = "✅ Admin mode enabled";
     renderAll();
-  } else alert('❌ Wrong password!');
+    return;
+  }
+
+  // --- Camp-specific user login ---
+  const campEntry = Object.entries(CAMP_USERS).find(([camp, creds]) =>
+    creds.user === user && creds.pass === pw
+  );
+
+  if (campEntry) {
+    const [campName] = campEntry;
+    isAdmin = false;
+    currentUserCamp = campName;
+    editor.classList.remove('hidden');
+    loginBox.classList.add('hidden');
+    adminBox.classList.remove('hidden');
+    msg.innerText = `✅ Logged in as ${user} (Camp: ${campName})`;
+    renderTable(campName);
+    return;
+  }
+
+  alert("❌ Invalid login credentials!");
 }
+
 function logout(){
   isAdmin=false;
   editor.classList.add('hidden');
@@ -203,12 +242,42 @@ function logout(){
 }
 
 // ---------- Workers Table ----------
-function addWorker(){
-  const w={iq:f_iq.value.trim(),name:f_name.value.trim(),camp:f_camp.value.trim(),company:f_company.value.trim(),gender:f_gender.value.trim(),nationality:f_nationality.value.trim(),sponsor:f_sponsor.value.trim(),room:f_room.value.trim()};
-  if(!w.iq||!w.name) return alert("IQAMA and Name required!");
+function addWorker() {
+  const w = {
+    iq: f_iq.value.trim(),
+    name: f_name.value.trim(),
+    camp: f_camp.value.trim(),
+    company: f_company.value.trim(),
+    gender: f_gender.value.trim(),
+    nationality: f_nationality.value.trim(),
+    sponsor: f_sponsor.value.trim(),
+    room: f_room.value.trim()
+  };
+
+  if (!w.iq || !w.name) return alert("IQAMA and Name required!");
+
+  // Restrict to user’s camp
+  if (!isAdmin && currentUserCamp && w.camp !== currentUserCamp)
+    return alert(`❌ You can only add workers to your own camp: "${currentUserCamp}"`);
+
   workers.push(w);
-  apiSaveData().then(r=>{if(r){msg.innerText="✅ Worker added!"; renderAll();}});
+  apiSaveData().then(r => { if (r) { msg.innerText = "✅ Worker added!"; renderAll(); } });
 }
+
+function deleteWorkerPrompt() {
+  const iq = prompt("Enter IQAMA to delete:");
+  if (!iq) return;
+  const i = workers.findIndex(w => w.iq === iq);
+  if (i < 0) return alert("❌ IQAMA not found!");
+
+  const worker = workers[i];
+  if (!isAdmin && currentUserCamp && worker.camp !== currentUserCamp)
+    return alert(`❌ You can only delete workers from your own camp: "${currentUserCamp}"`);
+
+  workers.splice(i, 1);
+  apiSaveData().then(r => { if (r) { alert("🗑️ Worker deleted!"); renderAll(); } });
+}
+
 function deleteWorkerPrompt(){
   const iq=prompt("Enter IQAMA to delete:");
   if(!iq) return;
