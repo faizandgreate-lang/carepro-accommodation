@@ -1393,7 +1393,6 @@
   ],
   "camps": [
     "New Camp",
-    "New Camp",
     "New Camp"
   ],
   "campData": {
@@ -3698,17 +3697,6 @@
           "Rabwa"
         ]
       ]
-    },
-    "New Camp": {
-      "beds": 0,
-      "rooms": 0,
-      "meta": {
-        "AVAILABLE BEDS": "",
-        "MALE": "",
-        "FEMALE": "",
-        "TOTAL": "",
-        "NEW COLUMN": ""
-      }
     },
     "__summaryHeaders": [
       "CAMP",
