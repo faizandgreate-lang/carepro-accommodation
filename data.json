@@ -6380,6 +6380,50 @@
         ]
       ]
     },
+    "New bawadi": {
+      "beds": 0,
+      "rooms": 0,
+      "meta": {
+        "AVAILABLE BEDS": "0",
+        "MALE": "137",
+        "FEMALE": "0",
+        "TOTAL": "137",
+        "NEW COLUMN": ""
+      }
+    },
+    "G. Bawadi": {
+      "beds": 157,
+      "rooms": 25,
+      "meta": {
+        "AVAILABLE BEDS": "0",
+        "MALE": "0",
+        "FEMALE": "0",
+        "TOTAL": "138",
+        "NEW COLUMN": ""
+      }
+    },
+    "Old rabwa": {
+      "beds": 0,
+      "rooms": 0,
+      "meta": {
+        "AVAILABLE BEDS": "0",
+        "MALE": "88",
+        "FEMALE": "0",
+        "TOTAL": "88",
+        "NEW COLUMN": ""
+      }
+    },
+    "B.sultan": {
+      "beds": 0,
+      "rooms": 0,
+      "meta": {
+        "AVAILABLE BEDS": "0",
+        "MALE": "44",
+        "FEMALE": "0",
+        "TOTAL": "44",
+        "NEW COLUMN": ""
+      }
+    },
     "__summaryHeaders": [
       "CAMP",
       "ROOMS",
