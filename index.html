@@ -584,7 +584,7 @@ function searchByIqama(){ const q = (searchIqama.value||'').trim(); if(!q) retur
 
 // Optional worker column functions (if used)
 function addWorkerColumn() {
-  if(!isAdmin) return alert("Only admin can add columns.");
+  // Anyone can add now
   const table = document.querySelector("#tableWrap table");
   if(!table) return alert("No worker table found.");
   const headerRow = table.tHead.rows[0];
@@ -598,8 +598,9 @@ function addWorkerColumn() {
     cell.innerText = "";
   }
 }
+
 function deleteWorkerColumn() {
-  if(!isAdmin) return alert("Only admin can delete columns.");
+  // Anyone can delete now
   const table = document.querySelector("#tableWrap table");
   if(!table) return alert("No worker table found.");
   const colCount = table.tHead.rows[0].cells.length;
@@ -608,8 +609,9 @@ function deleteWorkerColumn() {
     table.rows[r].deleteCell(colCount-1);
   }
 }
+
 function saveWorkerColumns(){
-  if(!isAdmin) return alert("Only admin can save changes.");
+  // Anyone can save now
   const table = document.querySelector("#tableWrap table");
   if(!table) return alert("No table found.");
   const headers = Array.from(table.tHead.rows[0].cells).map(th => th.innerText.trim());
@@ -618,13 +620,13 @@ function saveWorkerColumns(){
     const cells = Array.from(table.tBodies[0].rows[r].cells).map(td => td.innerText.trim());
     rows.push(cells);
   }
-  // store columns as metadata (safe for future)
   campData.__workerColumns = {headers, rows};
   apiSaveData().then(r=>{
     if(r) alert("✅ Columns saved successfully!");
     else alert("⚠️ Save failed.");
   });
 }
+
 const MASTER_PASSWORD = 'Care@12345'; // <-- set your desired password
 
   function verifyMaster() {
