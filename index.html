@@ -204,9 +204,9 @@ function login() {
   if (user === "CPF" && pw === "Care@12345") {
     isAdmin = true;
     currentUserCamp = "MASTER";
-    editor.classList.remove('hidden');
-    loginBox.classList.add('hidden');
-    adminBox.classList.remove('hidden');
+    editor.classList.remove("hidden");
+    loginBox.classList.add("hidden");
+    adminBox.classList.remove("hidden");
     msg.innerText = "✅ Master Admin mode enabled (Full Control)";
     document.getElementById("masterHiddenSection").classList.remove("hidden");
     document.getElementById("masterControls").classList.remove("hidden");
@@ -215,22 +215,40 @@ function login() {
   }
 
   // === CAMP USER LOGIN ===
-  const campEntry = Object.entries(CAMP_USERS).find(([camp, creds]) => creds.user === user && creds.pass === pw);
-  if (campEntry) {
-    const [campName] = campEntry;
-    currentUserCamp = campName;
+ // === CAMP USERS LIST ===
+const CAMP_USERS = {
+  "New bawadi": { user: "bawadi1", pass: "1234" },
+  "CP 1": { user: "cp1", pass: "cp1pass" },
+  "CP 2": { user: "cp2", pass: "cp2pass" },
+  "CP 3": { user: "cp3", pass: "cp3pass" }
+};
+
+let currentUserCamp = null; // tracks which camp the logged-in user belongs to
+ let foundCamp = null;
+  for (const campName in CAMP_USERS) {
+    const creds = CAMP_USERS[campName];
+    if (creds.user === user && creds.pass === pw) {
+      foundCamp = campName;
+      break;
+    }
+  }
+
+  if (foundCamp) {
+    currentUserCamp = foundCamp;
     isAdmin = false;
-    let currentUserCamp = null;
     editor.classList.remove("hidden");
     loginBox.classList.add("hidden");
     adminBox.classList.remove("hidden");
-    msg.innerText = `✅ Logged in as Camp User (${campName})`;
+    msg.innerText = `✅ Logged in as Camp User (${foundCamp})`;
+    document.getElementById("masterHiddenSection").classList.add("hidden");
+    document.getElementById("masterControls").classList.add("hidden");
     renderAll();
     return;
   }
 
   alert("❌ Wrong User ID or Password!");
 }
+
 
 
 function logout(){
