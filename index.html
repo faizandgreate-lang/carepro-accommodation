@@ -420,7 +420,7 @@ function renderCampSummary() {
   const headers = getSavedHeaders();
   let html = '<table id="campSummaryTable"><thead><tr>';
   headers.forEach(h => {
-    html += `<th ${isAdmin ? 'contenteditable="true"' : ''}>${h}</th>`;
+    html += `<th contenteditable="true">${h}</th>`;
   });
   html += '</tr></thead><tbody>';
 
@@ -445,7 +445,7 @@ function renderCampSummary() {
       else if (key === 'female') val = female;
       else if (key === 'total') val = total;
       else val = (data.meta && data.meta[h]) !== undefined ? data.meta[h] : '';
-      html += `<td ${isAdmin ? 'contenteditable="true"' : ''}>${val}</td>`;
+      html += `<td contenteditable="true">${val}</td>`;
     });
     html += '</tr>';
   });
@@ -456,93 +456,117 @@ function renderCampSummary() {
   </tr>`;
   html += '</tbody></table>';
 
-  if (isAdmin) {
-    html += `
-      <div id="campControls" style="margin-top:8px;">
-        <button id="addRowBtn" class="btn">➕ Add Row</button>
-        <button id="deleteRowBtn" class="btn">🗑 Delete Row</button>
-        <button id="addColBtn" class="btn">➕ Add Column</button>
-        <button id="deleteColBtn" class="btn">🗑 Delete Column</button>
-        <button id="saveBtn" class="btn">💾 Save Changes</button>
-      </div>`;
-  }
+  html += `
+    <div id="campControls" style="margin-top:8px;">
+      <button id="addRowBtn">➕ Add Row</button>
+      <button id="deleteRowBtn">🗑 Delete Row</button>
+      <button id="addColBtn">➕ Add Column</button>
+      <button id="deleteColBtn">🗑 Delete Column</button>
+      <button id="saveBtn">💾 Save Changes</button>
+    </div>`;
 
   campSummary.innerHTML = html;
 
-  // === Rebind events after render ===
-  if (isAdmin) {
-    document.getElementById('addRowBtn').onclick = addRow;
-    document.getElementById('deleteRowBtn').onclick = deleteRow;
-    document.getElementById('addColBtn').onclick = addColumn;
-    document.getElementById('deleteColBtn').onclick = deleteColumn;
-    document.getElementById('saveBtn').onclick = saveCampSummary;
+  // re-bind events
+  document.getElementById('addRowBtn').onclick = addRow;
+  document.getElementById('deleteRowBtn').onclick = deleteRow;
+  document.getElementById('addColBtn').onclick = addColumn;
+  document.getElementById('deleteColBtn').onclick = deleteColumn;
+  document.getElementById('saveBtn').onclick = saveCampSummary;
+}
+
+// Add new empty row before the total
+function addRow() {
+  const tbl = document.getElementById('campSummaryTable');
+  if (!tbl) return alert('Camp summary table not found.');
+  const tbody = tbl.tBodies[0];
+  const colCount = tbl.tHead.rows[0].cells.length;
+  const row = tbody.insertRow(tbody.rows.length - 1);
+  for (let i = 0; i < colCount; i++) {
+    const cell = row.insertCell(i);
+    cell.contentEditable = "true";
+    cell.innerText = i === 0 ? "New Camp" : "";
   }
 }
 
+function deleteRow() {
+  const tbl = document.getElementById('campSummaryTable');
+  if (!tbl) return alert('Camp summary table not found.');
+  const tbody = tbl.tBodies[0];
+  if (tbody.rows.length <= 2) return alert('Cannot delete last row.');
+  tbody.deleteRow(tbody.rows.length - 2); // before total
+}
 
-// ---------- Camp Summary Row / Column Functions ----------
-function addRow(){
-  const tbl=document.getElementById('campSummaryTable');
-  if(!tbl) return;
-  const tbody=tbl.tBodies[0];
-  const headers=tbl.tHead.rows[0].cells.length;
-  let insertIndex=tbody.rows.length-1; // before total row
-  const row=tbody.insertRow(insertIndex);
-  for(let i=0;i<headers;i++){ const cell=row.insertCell(i); cell.contentEditable="true"; cell.innerText=(i===0?'New Camp':''); }
+function addColumn() {
+  const tbl = document.getElementById('campSummaryTable');
+  if (!tbl) return alert('Camp summary table not found.');
+  const th = document.createElement('th');
+  th.contentEditable = "true";
+  th.innerText = 'New Column';
+  tbl.tHead.rows[0].appendChild(th);
+  for (let r = 0; r < tbl.tBodies[0].rows.length; r++) {
+    const row = tbl.tBodies[0].rows[r];
+    const cell = row.insertCell();
+    cell.contentEditable = "true";
+    cell.innerText = "";
+  }
 }
-function deleteRow(){
-  const tbl=document.getElementById('campSummaryTable');
-  if(!tbl) return;
-  const tbody=tbl.tBodies[0];
-  if(!tbody || tbody.rows.length<=1) return alert('Cannot delete last row.');
-  tbody.deleteRow(tbody.rows.length-2); // delete last data row before total
+
+function deleteColumn() {
+  const tbl = document.getElementById('campSummaryTable');
+  if (!tbl) return alert('Camp summary table not found.');
+  const colCount = tbl.tHead.rows[0].cells.length;
+  if (colCount <= 2) return alert('Cannot delete essential columns.');
+  for (let r = 0; r < tbl.rows.length; r++) {
+    const row = tbl.rows[r];
+    row.deleteCell(colCount - 1);
+  }
 }
-function addColumn(){
-  const tbl=document.getElementById('campSummaryTable');
-  if(!tbl) return;
-  const colCount=tbl.rows[0].cells.length;
-  const th=document.createElement('th'); th.contentEditable="true"; th.innerText='New Column';
-  tbl.rows[0].appendChild(th);
-  const tbody=tbl.tBodies[0];
-  for(let r=0;r<tbody.rows.length;r++){ const row=tbody.rows[r]; const cell=row.insertCell(row.cells.length); cell.contentEditable="true"; cell.innerText=''; }
-}
-function deleteColumn(){
-  const tbl=document.getElementById('campSummaryTable');
-  if(!tbl) return;
-  if(tbl.rows[0].cells.length<=2) return alert('Cannot delete last column.');
-  for(let r=0;r<tbl.rows.length;r++){ const row=tbl.rows[r]; if(row.cells.length>0) row.deleteCell(row.cells.length-1); }
-}
-function saveCampSummary(){
-  const tbl=document.getElementById('campSummaryTable');
-  if(!tbl) return alert('Nothing to save.');
-  const headers=[]; for(let i=0;i<tbl.tHead.rows[0].cells.length;i++) headers.push(tbl.tHead.rows[0].cells[i].innerText.trim()||`Col${i}`);
-  const tbody=tbl.tBodies[0]; if(!tbody) return;
-  const rows=[];
-  for(let r=0;r<tbody.rows.length;r++){
-    const row=tbody.rows[r]; if(row.innerText.includes('Total Workers')) break;
-    const cells=[]; for(let c=0;c<row.cells.length;c++) cells.push(row.cells[c].innerText.trim());
-    if(!cells[0]) continue;
+
+function saveCampSummary() {
+  const tbl = document.getElementById('campSummaryTable');
+  if (!tbl) return alert('Nothing to save.');
+  const headers = Array.from(tbl.tHead.rows[0].cells).map(th => th.innerText.trim() || 'Column');
+  const rows = [];
+  const tbody = tbl.tBodies[0];
+  for (let r = 0; r < tbody.rows.length; r++) {
+    const row = tbody.rows[r];
+    if (row.innerText.includes('Total Workers')) break;
+    const cells = Array.from(row.cells).map(td => td.innerText.trim());
+    if (!cells[0]) continue;
     rows.push(cells);
   }
-  const newCamps=[]; const newCampData={};
-  rows.forEach(cells=>{
-    const name=cells[0].trim(); if(!name) return;
+
+  const newCamps = [];
+  const newCampData = {};
+  rows.forEach(cells => {
+    const name = cells[0].trim();
+    if (!name) return;
     newCamps.push(name);
-    const existing=campData[name]||{beds:0,rooms:0,meta:{}};
-    const entry={beds:Number(existing.beds)||0,rooms:Number(existing.rooms)||0,meta:Object.assign({},existing.meta||{})};
-    for(let i=1;i<headers.length;i++){
-      const h=headers[i].trim(); const val=cells[i]!==undefined?cells[i]:''; const key=h.toLowerCase();
-      if(key==='rooms'||key==='room') entry.rooms=Number(val)||0;
-      else if(key==='total beds'||key==='beds'||key==='total_beds') entry.beds=Number(val)||0;
-      else entry.meta[h]=val;
+    const entry = { beds: 0, rooms: 0, meta: {} };
+    for (let i = 1; i < headers.length; i++) {
+      const h = headers[i].toLowerCase();
+      const v = cells[i] || '';
+      if (h.includes('room')) entry.rooms = Number(v) || 0;
+      else if (h.includes('bed')) entry.beds = Number(v) || 0;
+      else entry.meta[headers[i]] = v;
     }
-    newCampData[name]=entry;
+    newCampData[name] = entry;
   });
-  newCampData.__summaryHeaders=headers;
-  camps=newCamps;
-  const preserved={}; for(const k in campData){if(!newCampData[k] && k!=='__summaryHeaders') preserved[k]=campData[k];}
-  campData=Object.assign({},preserved,newCampData); campData.__summaryHeaders=headers;
-  apiSaveData().then(res=>{if(res){alert('✅ Camp summary saved.'); updateCampDropdown(); renderAll();} else alert('⚠️ Save failed.');});
+
+  newCampData.__summaryHeaders = headers;
+  camps = newCamps;
+  campData = newCampData;
+
+  apiSaveData().then(res => {
+    if (res) {
+      alert('✅ Camp summary saved successfully!');
+      updateCampDropdown();
+      renderAll();
+    } else {
+      alert('⚠️ Save failed.');
+    }
+  });
 }
 
 // ---------- CSV ----------
