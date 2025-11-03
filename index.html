@@ -98,12 +98,19 @@
 </div>
 
 <!-- === Master Password Input === -->
-<h4>🔑 Master Controls</h4>
-<label>Master Password:
-  <input type="password" id="masterPw" placeholder="Enter Master Password">
-</label>
-<button onclick="verifyMaster()">Verify</button>
-<div id="masterMsg" style="color:green;margin-top:5px;font-weight:600;"></div>
+<!-- === Password Control (Top Right) === -->
+<div id="passwordBox" style="position:absolute; top:20px; right:20px; text-align:right;">
+  <label style="font-weight:600; color:#004085;">
+    Password:
+    <input type="password" id="masterPw" placeholder="Enter Password"
+           style="margin-left:6px; padding:4px 8px; border:1px solid #bbb; border-radius:4px;">
+  </label>
+  <button onclick="verifyMaster()" 
+          style="background:#004085; color:#fff; border:none; padding:5px 10px; border-radius:4px; margin-left:6px; cursor:pointer;">
+    Verify
+  </button>
+  <div id="masterMsg" style="color:green; margin-top:5px; font-weight:600;"></div>
+</div>
 
 
 <div id="masterControls" class="hidden" style="margin-top:8px;">
