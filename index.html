@@ -205,8 +205,7 @@ function login() {
     renderAll();
     return;
   }
-
- // === CAMP USERS LIST ===
+// === USERS CONFIG ===
 const CAMP_USERS = {
   "New bawadi": { user: "bawadi1", pass: "1234" },
   "CP 1": { user: "cp1", pass: "cp1pass" },
@@ -214,8 +213,29 @@ const CAMP_USERS = {
   "CP 3": { user: "cp3", pass: "cp3pass" }
 };
 
-let currentUserCamp = null; // tracks which camp the logged-in user belongs to
- let foundCamp = null;
+let currentUserCamp = null;
+
+// === LOGIN FUNCTION ===
+function login() {
+  const user = document.getElementById("loginUser").value.trim();
+  const pw = document.getElementById("loginPw").value.trim();
+
+  // --- MASTER LOGIN ---
+  if (user === "CPF" && pw === "Care@12345") {
+    isAdmin = true;
+    currentUserCamp = "MASTER";
+    editor.classList.remove("hidden");
+    loginBox.classList.add("hidden");
+    adminBox.classList.remove("hidden");
+    msg.innerText = "✅ Master Admin mode enabled (Full Control)";
+    document.getElementById("masterHiddenSection").classList.remove("hidden");
+    document.getElementById("masterControls").classList.remove("hidden");
+    renderAll();
+    return;
+  }
+
+  // --- CAMP USERS LOGIN ---
+  let foundCamp = null;
   for (const campName in CAMP_USERS) {
     const creds = CAMP_USERS[campName];
     if (creds.user === user && creds.pass === pw) {
@@ -233,12 +253,18 @@ let currentUserCamp = null; // tracks which camp the logged-in user belongs to
     msg.innerText = `✅ Logged in as Camp User (${foundCamp})`;
     document.getElementById("masterHiddenSection").classList.add("hidden");
     document.getElementById("masterControls").classList.add("hidden");
+
+    // Optional: show current camp name in title
+    document.title = `🏕️ ${foundCamp} Dashboard — CARE-PRO`;
+    document.querySelector("h1").innerText = `🏠 CARE-PRO (${foundCamp})`;
+
     renderAll();
     return;
   }
 
   alert("❌ Wrong User ID or Password!");
 }
+
 
 
 
