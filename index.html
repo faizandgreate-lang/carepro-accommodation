@@ -155,8 +155,16 @@
   </div>
 </div>
 
-<h2>🏘️ Camp Summary</h2>
-<div id="campSummary"></div>
+<h2>🏢 Client / Company Summary</h2>
+<div style="margin-bottom:10px;">
+  <label>Filter by Company:
+    <select id="filterCompany" onchange="renderClientSummary()">
+      <option value="">All Companies</option>
+    </select>
+  </label>
+</div>
+<div id="clientSummary"></div>
+
 
 <h2>👷 Worker Details</h2>
 <div id="tableWrap"></div>
