@@ -144,9 +144,17 @@
 </div>
 
 <!-- Client Summary + Chart -->
+<!-- 🏢 Client / Company Summary + Chart -->
 <div class="summary-chart" style="margin-top:12px;">
   <div id="clientSummaryBox" class="box">
     <h2>🏢 Client / Company Summary</h2>
+    <div style="margin-bottom:10px;">
+      <label>Filter by Company:
+        <select id="filterCompany" onchange="renderClientSummary()">
+          <option value="">All Companies</option>
+        </select>
+      </label>
+    </div>
     <div id="clientSummary"></div>
   </div>
   <div id="clientChartBox" class="box">
@@ -155,15 +163,6 @@
   </div>
 </div>
 
-<h2>🏢 Client / Company Summary</h2>
-<div style="margin-bottom:10px;">
-  <label>Filter by Company:
-    <select id="filterCompany" onchange="renderClientSummary()">
-      <option value="">All Companies</option>
-    </select>
-  </label>
-</div>
-<div id="clientSummary"></div>
 
 
 <h2>👷 Worker Details</h2>
