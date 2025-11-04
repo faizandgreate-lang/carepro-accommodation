@@ -882,11 +882,118 @@ function changeLanguage(lang) {
 document.querySelectorAll('.lang-btn').forEach(btn => {
   btn.addEventListener('click', () => changeLanguage(btn.dataset.lang));
 });
+<script>
+const translations = {
+  en: {
+    title: "CARE-PRO ACCOMMODATION",
+    login: "Login",
+    makeCV: "Make CV",
+    freePool: "Free Pool",
+    password: "Password",
+    verify: "Verify",
+    selectCamp: "Select Camp",
+    showCamp: "Show Camp",
+    searchByIqama: "Search Worker by IQAMA",
+    search: "Search",
+    summary: "Client / Company Summary",
+    filterByCompany: "Filter by Company:",
+    total: "Total",
+    logout: "Logout",
+    adminPanel: "⚙️ ADMIN PANEL",
+    addWorker: "Add Worker",
+    deleteWorker: "Delete Worker",
+    loggedIn: "✅ Logged in as",
+    export: "📤 Export Workers",
+    csvFormat: "CSV Format: iq,name,camp,company,gender,nationality,sponsor,room",
+    madeBy: "Made with ❤️ by Faizan Khan"
+  },
+  ar: {
+    title: "سكن كير برو",
+    login: "تسجيل الدخول",
+    makeCV: "إنشاء سيرة ذاتية",
+    freePool: "المجموعة الحرة",
+    password: "كلمة المرور",
+    verify: "تحقق",
+    selectCamp: "اختر المخيم",
+    showCamp: "عرض المخيم",
+    searchByIqama: "بحث عن عامل برقم الإقامة",
+    search: "بحث",
+    summary: "ملخص الشركة / العميل",
+    filterByCompany: "تصفية حسب الشركة:",
+    total: "المجموع",
+    logout: "تسجيل الخروج",
+    adminPanel: "⚙️ لوحة التحكم",
+    addWorker: "إضافة عامل",
+    deleteWorker: "حذف عامل",
+    loggedIn: "✅ تم تسجيل الدخول باسم",
+    export: "📤 تصدير العمال",
+    csvFormat: "تنسيق CSV: iq,name,camp,company,gender,nationality,sponsor,room",
+    madeBy: "تم التصميم ❤️ بواسطة فيزان خان"
+  },
+  hi: {
+    title: "केयर-प्रो आवास",
+    login: "लॉगिन",
+    makeCV: "सीवी बनाएं",
+    freePool: "फ्री पूल",
+    password: "पासवर्ड",
+    verify: "सत्यापित करें",
+    selectCamp: "कैंप चुनें",
+    showCamp: "कैंप दिखाएं",
+    searchByIqama: "इक़ामा से वर्कर खोजें",
+    search: "खोजें",
+    summary: "क्लाइंट / कंपनी सारांश",
+    filterByCompany: "कंपनी द्वारा फ़िल्टर करें:",
+    total: "कुल",
+    logout: "लॉगआउट",
+    adminPanel: "⚙️ एडमिन पैनल",
+    addWorker: "वर्कर जोड़ें",
+    deleteWorker: "वर्कर हटाएं",
+    loggedIn: "✅ लॉगिन किया गया:",
+    export: "📤 वर्कर्स एक्सपोर्ट करें",
+    csvFormat: "CSV प्रारूप: iq,name,camp,company,gender,nationality,sponsor,room",
+    madeBy: "❤️ से बनाया फैज़ान खान द्वारा"
+  },
+  ur: {
+    title: "کیئر پرو رہائش",
+    login: "لاگ ان",
+    makeCV: "سی وی بنائیں",
+    freePool: "فری پول",
+    password: "پاس ورڈ",
+    verify: "تصدیق کریں",
+    selectCamp: "کیمپ منتخب کریں",
+    showCamp: "کیمپ دکھائیں",
+    searchByIqama: "اقامہ سے ورکر تلاش کریں",
+    search: "تلاش کریں",
+    summary: "کلائنٹ / کمپنی خلاصہ",
+    filterByCompany: "کمپنی کے لحاظ سے فلٹر:",
+    total: "کل",
+    logout: "لاگ آؤٹ",
+    adminPanel: "⚙️ ایڈمن پینل",
+    addWorker: "ورکر شامل کریں",
+    deleteWorker: "ورکر حذف کریں",
+    loggedIn: "✅ کے طور پر لاگ ان ہوا:",
+    export: "📤 ورکرز ایکسپورٹ کریں",
+    csvFormat: "CSV فارمیٹ: iq,name,camp,company,gender,nationality,sponsor,room",
+    madeBy: "❤️ کے ساتھ بنایا گیا فیزان خان نے"
+  }
+};
 
-// Load Google Translate script
-const script = document.createElement('script');
-script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-document.body.appendChild(script);
+// Function to switch language instantly
+function switchLang(lang) {
+  document.querySelectorAll("[data-translate]").forEach(el => {
+    const key = el.getAttribute("data-translate");
+    el.innerText = translations[lang][key] || el.innerText;
+  });
+  localStorage.setItem("selectedLang", lang);
+}
+
+// Restore last selected language
+window.addEventListener("DOMContentLoaded", () => {
+  const lang = localStorage.getItem("selectedLang") || "en";
+  switchLang(lang);
+});
+</script>
+
 
 </script>
 </body>
