@@ -4093,23 +4093,23 @@
     },
     "B.sultan": {
       "beds": 0,
-      "rooms": 0,
+      "rooms": 21,
       "meta": {
         "MALE": "44",
         "FEMALE": "0",
         "TOTAL": "44",
-        "LED": "",
-        "BLANKET": "",
-        "PELLOW": "",
-        "MATTRESS": "",
-        "FRIDGE": "",
-        "GAS": "",
-        "STOVE": "",
-        "CAMERA": "",
-        "AC": "",
-        "WASHING": "",
+        "LED": "1",
+        "BLANKET": "40",
+        "PELLOW": "40",
+        "MATTRESS": "57",
+        "FRIDGE": "7",
+        "GAS": "5",
+        "STOVE": "4",
+        "CAMERA": "4",
+        "AC": "26",
+        "WASHING": "2",
         "SHOE RACK": "",
-        "FIRE EXT": ""
+        "FIRE EXT": "3"
       }
     },
     "__summaryHeaders": [
