@@ -414,29 +414,69 @@ function filterChange(k, el){
 
 // ---------- Client Summary (table + chart) ----------
 function renderClientSummary(){
-  const map={};
-  workers.forEach(w=>{map[w.company]=map[w.company]||{}; map[w.company][w.camp]=(map[w.company][w.camp]||0)+1;});
-  let html='<table><tr><th>Company</th>';
-  camps.forEach(c=>html+=`<th>${c}</th>`); html+='<th>Total</th></tr>';
-  let total=0;
-  for(const comp in map){
-    let sum=0;
-    html+=`<tr><td>${comp}</td>`;
-    camps.forEach(c=>{const val=map[comp][c]||0; sum+=val; html+=`<td>${val}</td>`;});
-    html+=`<td>${sum}</td></tr>`;
-    total+=sum;
-  }
-  html+=`<tr style="font-weight:bold;background:#cfe2ff;"><td>Total</td><td colspan="${Math.max(1,camps.length)}"></td><td>${total}</td></tr></table>`;
-  clientSummary.innerHTML=html;
+  // === Build unique company list ===
+  const companySet = new Set(workers.map(w => w.company).filter(Boolean));
+  const companySelect = document.getElementById("filterCompany");
 
-  // build chart data
-  const labels = Object.keys(map);
-  const data = labels.map(lbl => {
-    let s=0; camps.forEach(cp => { s += map[lbl][cp]||0; }); return s;
+  // Populate dropdown once
+  if (companySelect && companySelect.options.length <= 1) {
+    companySet.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = c;
+      companySelect.appendChild(opt);
+    });
+  }
+
+  const selectedCompany = companySelect?.value || "";
+
+  // === Filter workers if company is selected ===
+  let filteredWorkers = workers;
+  if (selectedCompany) {
+    filteredWorkers = filteredWorkers.filter(w => w.company === selectedCompany);
+  }
+
+  // === Build table data ===
+  const map = {};
+  filteredWorkers.forEach(w => {
+    const comp = w.company || "Unknown";
+    if (!map[comp]) map[comp] = {};
+    map[comp][w.camp] = (map[comp][w.camp] || 0) + 1;
   });
 
-  // destroy previous chart if exists
-  if(clientChartInstance) clientChartInstance.destroy();
+  let html = '<table><tr><th>Company</th>';
+  camps.forEach(c => html += `<th>${c}</th>`);
+  html += '<th>Total</th></tr>';
+
+  let total = 0;
+  for (const comp in map) {
+    let sum = 0;
+    html += `<tr><td>${comp}</td>`;
+    camps.forEach(c => {
+      const val = map[comp][c] || 0;
+      sum += val;
+      html += `<td>${val}</td>`;
+    });
+    html += `<td>${sum}</td></tr>`;
+    total += sum;
+  }
+
+  html += `<tr style="font-weight:bold;background:#cfe2ff;">
+    <td>Total</td>
+    ${camps.map(()=>'<td></td>').join('')}
+    <td>${total}</td>
+  </tr></table>`;
+
+  clientSummary.innerHTML = html;
+
+  // === Build chart ===
+  const labels = Object.keys(map);
+  const data = labels.map(lbl => {
+    let s=0; camps.forEach(cp => { s += map[lbl][cp]||0; });
+    return s;
+  });
+
+  if (clientChartInstance) clientChartInstance.destroy();
   const ctx = document.getElementById('clientChart').getContext('2d');
   clientChartInstance = new Chart(ctx, {
     type: 'bar',
@@ -455,6 +495,7 @@ function renderClientSummary(){
     }
   });
 }
+
 
 // ---------- Camp Summary (Editable / Add Row / Column) ----------
 function getSavedHeaders(){
