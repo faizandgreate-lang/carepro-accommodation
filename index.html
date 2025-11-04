@@ -29,6 +29,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+
+<body>
 <!-- 🔄 Loading Screen -->
 <div id="loadingScreen" style="
   position:fixed; top:0; left:0; width:100%; height:100%;
@@ -42,7 +44,7 @@
 </div>
 
 
-<h1 id="title-text">CARE-PRO ACCOMMODATION</h1>
+<h1> CARE-PRO ACCOMMODATION</h1>
 
 <!-- Care-Pro Logo -->
 <div style="text-align:center; margin-bottom:20px;">
@@ -148,7 +150,7 @@
 
 </div>
 
-<h2 id="select-camp">Select Camp</h2>
+<h2> Select Camp</h2>
 <div style="margin:10px 0;">
   <label>Camp:
     <select id="campSelect" onchange="showSelectedCamp()"></select>
@@ -167,7 +169,7 @@
 <!--  Client / Company Summary + Chart -->
 <div class="summary-chart" style="margin-top:12px;">
   <div id="clientSummaryBox" class="box">
- <h2 id="client-summary">Client / Company Summary</h2>
+    <h2> Client / Company Summary</h2>
     <div style="margin-bottom:10px;">
       <label>Filter by Company:
         <select id="filterCompany" onchange="renderClientSummary()">
@@ -185,7 +187,7 @@
 
 
 
-<h2 id="worker-details">Worker Details</h2>
+<h2> Worker Details</h2>
 <div id="tableWrap"></div>
 
 <!-- optional admin worker column controls (if you used previously) -->
@@ -195,7 +197,7 @@
   <button onclick="saveWorkerColumns()" style="margin:5px;padding:6px 12px;background:#198754;color:#fff;border:none;border-radius:4px;cursor:pointer;">💾 Save Changes</button>
 </div>
 
-<div class="footer" id="footer-text">Made with ❤️ by Faizan Khan</div>
+<div class="footer">Made with ❤️ by <span>Faizan Khan</span></div>
 
 <script>
 const ADMIN_PASSWORD = '12341234';
@@ -822,164 +824,6 @@ window.addEventListener('load', () => {
     setTimeout(() => loader.remove(), 600);
   }, 1000); // 1 second
 });
-<!-- 🌍 Local Translation System -->
-<script>
-// ====== TRANSLATION DATA ======
-const translations = {
-  en: {
-    title: "Care-Pro Riyadh Accommodation",
-    accommodation: "CARE-PRO ACCOMMODATION",
-    selectCamp: "Select Camp",
-    workerDetails: "Worker Details",
-    clientSummary: "Client / Company Summary",
-    workerGraph: "Worker Count Graph",
-    adminPanel: "⚙️ ADMIN PANEL",
-    exportWorkers: "📤 Export Workers",
-    manageCamps: "Manage Camps",
-    importWorkers: "📥 Import Workers",
-    footer: "Made with ❤️ by Faizan Khan",
-
-    userId: "User ID",
-    password: "Password",
-    login: "Login",
-    logout: "Logout",
-    enterPassword: "Enter Password",
-    verify: "Verify",
-    iqama: "IQAMA",
-    name: "Name",
-    camp: "Camp",
-    company: "Company",
-    gender: "Gender",
-    nationality: "Nationality",
-    sponsor: "Sponsor",
-    roomNo: "Room No",
-    addWorker: "Add Worker",
-    deleteWorker: "Delete Worker",
-    exportCSV: "Export Workers CSV",
-    enterCampName: "Enter Camp Name",
-    addCamp: "Add Camp",
-    deleteCamp: "Delete Camp",
-    importCSV: "Import CSV",
-    filterCompany: "Filter by Company",
-    allCompanies: "All Companies",
-    searchWorker: "Search Worker by IQAMA",
-    enterIqama: "Enter IQAMA Number",
-    search: "Search",
-    showCamp: "Show Camp",
-    workers: "Workers",
-    addColumn: "➕ Add Column",
-    deleteColumn: "🗑 Delete Column",
-    saveChanges: "💾 Save Changes",
-    loading: "Loading...",
-    adminEnabled: "✅ Admin mode enabled",
-    loggedIn: "✅ Logged in as",
-    invalidLogin: "❌ Invalid login credentials!",
-    workerAdded: "✅ Worker added!",
-    enterToDelete: "Enter IQAMA to delete:",
-    iqamaNotFound: "❌ IQAMA not found!",
-    workerDeleted: "✅ Worker deleted!",
-    addRestriction: "❌ You can only add workers to your own camp:",
-    deleteRestriction: "❌ You can only delete workers from your own camp:",
-    errorLoad: "Error loading data.",
-    errorSave: "Error saving data",
-    tableHeaders: "IQAMA, Name, Camp, Company, Gender, Nationality, Sponsor, Room",
-    all: "All",
-    noWorkers: "No workers",
-    noData: "No data",
-    total: "Total",
-    totalWorkers: "Total Workers",
-    csvFormat: "CSV Format: iq,name,camp,company,gender,nationality,sponsor,room"
-  },
-
-  ar: {
-    title: "سكن كير برو الرياض",
-    accommodation: "سكن كير برو",
-    selectCamp: "اختر المعسكر",
-    workerDetails: "تفاصيل العمال",
-    clientSummary: "ملخص العملاء / الشركات",
-    workerGraph: "رسم بياني لعدد العمال",
-    adminPanel: "⚙️ لوحة الإدارة",
-    exportWorkers: "📤 تصدير العمال",
-    manageCamps: "إدارة المعسكرات",
-    importWorkers: "📥 استيراد العمال",
-    footer: "تم الإنشاء بحب ❤️ بواسطة فايزان خان",
-
-    userId: "اسم المستخدم",
-    password: "كلمة المرور",
-    login: "تسجيل الدخول",
-    logout: "تسجيل الخروج",
-    enterPassword: "ادخل كلمة المرور",
-    verify: "تحقق",
-    iqama: "الإقامة",
-    name: "الاسم",
-    camp: "المعسكر",
-    company: "الشركة",
-    gender: "الجنس",
-    nationality: "الجنسية",
-    sponsor: "الكفيل",
-    roomNo: "رقم الغرفة",
-    addWorker: "إضافة عامل",
-    deleteWorker: "حذف عامل",
-    exportCSV: "تصدير العمال CSV",
-    enterCampName: "ادخل اسم المعسكر",
-    addCamp: "إضافة معسكر",
-    deleteCamp: "حذف معسكر",
-    importCSV: "استيراد CSV",
-    filterCompany: "تصفية حسب الشركة",
-    allCompanies: "كل الشركات",
-    searchWorker: "ابحث عن عامل برقم الإقامة",
-    enterIqama: "ادخل رقم الإقامة",
-    search: "بحث",
-    showCamp: "عرض المعسكر",
-    workers: "العمال",
-    addColumn: "➕ إضافة عمود",
-    deleteColumn: "🗑 حذف عمود",
-    saveChanges: "💾 حفظ التغييرات",
-    loading: "جار التحميل...",
-    adminEnabled: "✅ تم تفعيل وضع المدير",
-    loggedIn: "✅ تم تسجيل الدخول باسم",
-    invalidLogin: "❌ بيانات الدخول غير صحيحة!",
-    workerAdded: "✅ تم إضافة العامل!",
-    enterToDelete: "ادخل رقم الإقامة للحذف:",
-    iqamaNotFound: "❌ رقم الإقامة غير موجود!",
-    workerDeleted: "✅ تم حذف العامل!",
-    addRestriction: "❌ يمكنك إضافة العمال في معسكرك فقط:",
-    deleteRestriction: "❌ يمكنك حذف العمال من معسكرك فقط:",
-    errorLoad: "خطأ في تحميل البيانات.",
-    errorSave: "خطأ في حفظ البيانات",
-    tableHeaders: "الإقامة، الاسم، المعسكر، الشركة، الجنس، الجنسية، الكفيل، الغرفة",
-    all: "الكل",
-    noWorkers: "لا يوجد عمال",
-    noData: "لا توجد بيانات",
-    total: "المجموع",
-    totalWorkers: "إجمالي العمال",
-    csvFormat: "تنسيق CSV: iq,name,camp,company,gender,nationality,sponsor,room"
-  }
-};
-
-// ====== LANGUAGE SWITCH FUNCTION ======
-function setLanguage(lang) {
-  const t = translations[lang];
-  if (!t) return;
-
-  document.title = t.title;
-
-  // Example selectors — add IDs to your elements in HTML
-  document.getElementById("title-text").textContent = t.accommodation;
-  document.getElementById("select-camp").textContent = t.selectCamp;
-  document.getElementById("worker-details").textContent = t.workerDetails;
-  document.getElementById("client-summary").textContent = t.clientSummary;
-  document.getElementById("footer-text").textContent = t.footer;
-
-  // You can keep adding like this...
-  // Example: document.querySelector("#login-btn").textContent = t.login;
-}
-
-// ====== BUTTON HANDLERS ======
-document.getElementById("lang-en").addEventListener("click", () => setLanguage("en"));
-document.getElementById("lang-ar").addEventListener("click", () => setLanguage("ar"));
-// You can add Hindi, Urdu later as same structure
-</script>
 
 // initial load
 loadData();
