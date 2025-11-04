@@ -290,26 +290,50 @@ function addWorker() {
 function deleteWorkerPrompt() {
   const iq = prompt("Enter IQAMA to delete:");
   if (!iq) return;
-  const i = workers.findIndex(w => w.iq === iq);
-  if (i < 0) return alert("❌ IQAMA not found!");
 
-  const worker = workers[i];
-  if (!isAdmin && currentUserCamp && worker.camp !== currentUserCamp)
-    return alert(`❌ You can only delete workers from your own camp: "${currentUserCamp}"`);
+  const index = workers.findIndex(w => w.iq === iq);
+  if (index < 0) return alert("❌ IQAMA not found!");
 
-  workers.splice(i, 1);
-  apiSaveData().then(r => { if (r) { alert("🗑️ Worker deleted!"); renderAll(); } });
+  const worker = workers[index];
+
+  // Allow delete if:
+  // (1) Admin logged in, OR
+  // (2) Master password verified
+  const masterVerified =
+    document.getElementById('masterMsg')?.innerText.toLowerCase().includes('verified');
+
+  // --- Case 1: Admin or Master Password ---
+  if (isAdmin || masterVerified) {
+    if (confirm(`🗑️ Delete worker "${worker.name}" from camp "${worker.camp}"?`)) {
+      workers.splice(index, 1);
+      apiSaveData().then(r => {
+        if (r) {
+          alert("✅ Worker deleted!");
+          renderAll();
+        }
+      });
+    }
+    return;
+  }
+
+  // --- Case 2: Camp user (non-admin, no master) ---
+  if (currentUserCamp && worker.camp !== currentUserCamp) {
+    alert(`❌ You can only delete workers from your own camp: "${currentUserCamp}"`);
+    return;
+  }
+
+  // --- Allow delete only from their camp ---
+  if (confirm(`🗑️ Delete worker "${worker.name}" from camp "${worker.camp}"?`)) {
+    workers.splice(index, 1);
+    apiSaveData().then(r => {
+      if (r) {
+        alert("✅ Worker deleted!");
+        renderAll();
+      }
+    });
+  }
 }
 
-function deleteWorkerPrompt(){
-  const iq=prompt("Enter IQAMA to delete:");
-  if(!iq) return;
-  const i=workers.findIndex(w=>w.iq===iq);
-  if(i>=0){
-    workers.splice(i,1);
-    apiSaveData().then(r=>{if(r){alert("🗑️ Worker deleted!"); renderAll();}});
-  } else alert("❌ IQAMA not found!");
-}
 function updateCampDropdown(){
   campSelect.innerHTML='';
   camps.forEach(c=>{const o=document.createElement('option'); o.value=c; o.innerText=c; campSelect.appendChild(o);});
