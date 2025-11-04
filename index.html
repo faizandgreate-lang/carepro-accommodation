@@ -23,44 +23,12 @@
   /* layout for summary + chart */
   .summary-chart { display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start; }
   .summary-chart > .box { flex:1; min-width:300px; background:transparent; }
-
-/* 🌐 Language Buttons - Rounded + Glow Hover */
-.lang-buttons {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  display: flex;
-  gap: 10px;
-  z-index: 10000;
-}
-.lang-btn {
-  font-size: 20px;
-  border: none;
-  background: white;
-  border-radius: 50%;
-  width: 38px;
-  height: 38px;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  transition: transform 0.2s, box-shadow 0.3s;
-}
-.lang-btn:hover {
-  transform: scale(1.2);
-  box-shadow: 0 0 10px 3px rgba(0,64,133,0.4);
-}
 </style>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-<!-- 🌐 Emoji Language Buttons -->
-<div class="lang-buttons">
-  <button class="lang-btn" data-lang="en">🇬🇧</button>
-  <button class="lang-btn" data-lang="ar">🇸🇦</button>
-  <button class="lang-btn" data-lang="hi">🇮🇳</button>
-  <button class="lang-btn" data-lang="ur">🇵🇰</button>
-</div>
 
 <body>
 <!-- 🔄 Loading Screen -->
@@ -859,142 +827,6 @@ window.addEventListener('load', () => {
 
 // initial load
 loadData();
-  // 🌐 Google Translate setup + language switcher
-function googleTranslateElementInit() {
-  new google.translate.TranslateElement({
-    pageLanguage: 'en',
-    includedLanguages: 'en,ar,hi,ur',
-    layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-  }, 'google_translate_element');
-}
-
-function changeLanguage(lang) {
-  const frame = document.querySelector('iframe.goog-te-menu-frame');
-  if (!frame) return alert("Please wait, translator loading...");
-  const innerDoc = frame.contentDocument || frame.contentWindow.document;
-  const map = { en: 'English', ar: 'Arabic', hi: 'Hindi', ur: 'Urdu' };
-  const links = innerDoc.querySelectorAll('.goog-te-menu2-item span.text');
-  links.forEach(el => {
-    if (el.innerText.includes(map[lang])) el.click();
-  });
-}
-
-document.querySelectorAll('.lang-btn').forEach(btn => {
-  btn.addEventListener('click', () => changeLanguage(btn.dataset.lang));
-});
-<script>
-const translations = {
-  en: {
-    title: "CARE-PRO ACCOMMODATION",
-    login: "Login",
-    makeCV: "Make CV",
-    freePool: "Free Pool",
-    password: "Password",
-    verify: "Verify",
-    selectCamp: "Select Camp",
-    showCamp: "Show Camp",
-    searchByIqama: "Search Worker by IQAMA",
-    search: "Search",
-    summary: "Client / Company Summary",
-    filterByCompany: "Filter by Company:",
-    total: "Total",
-    logout: "Logout",
-    adminPanel: "⚙️ ADMIN PANEL",
-    addWorker: "Add Worker",
-    deleteWorker: "Delete Worker",
-    loggedIn: "✅ Logged in as",
-    export: "📤 Export Workers",
-    csvFormat: "CSV Format: iq,name,camp,company,gender,nationality,sponsor,room",
-    madeBy: "Made with ❤️ by Faizan Khan"
-  },
-  ar: {
-    title: "سكن كير برو",
-    login: "تسجيل الدخول",
-    makeCV: "إنشاء سيرة ذاتية",
-    freePool: "المجموعة الحرة",
-    password: "كلمة المرور",
-    verify: "تحقق",
-    selectCamp: "اختر المخيم",
-    showCamp: "عرض المخيم",
-    searchByIqama: "بحث عن عامل برقم الإقامة",
-    search: "بحث",
-    summary: "ملخص الشركة / العميل",
-    filterByCompany: "تصفية حسب الشركة:",
-    total: "المجموع",
-    logout: "تسجيل الخروج",
-    adminPanel: "⚙️ لوحة التحكم",
-    addWorker: "إضافة عامل",
-    deleteWorker: "حذف عامل",
-    loggedIn: "✅ تم تسجيل الدخول باسم",
-    export: "📤 تصدير العمال",
-    csvFormat: "تنسيق CSV: iq,name,camp,company,gender,nationality,sponsor,room",
-    madeBy: "تم التصميم ❤️ بواسطة فيزان خان"
-  },
-  hi: {
-    title: "केयर-प्रो आवास",
-    login: "लॉगिन",
-    makeCV: "सीवी बनाएं",
-    freePool: "फ्री पूल",
-    password: "पासवर्ड",
-    verify: "सत्यापित करें",
-    selectCamp: "कैंप चुनें",
-    showCamp: "कैंप दिखाएं",
-    searchByIqama: "इक़ामा से वर्कर खोजें",
-    search: "खोजें",
-    summary: "क्लाइंट / कंपनी सारांश",
-    filterByCompany: "कंपनी द्वारा फ़िल्टर करें:",
-    total: "कुल",
-    logout: "लॉगआउट",
-    adminPanel: "⚙️ एडमिन पैनल",
-    addWorker: "वर्कर जोड़ें",
-    deleteWorker: "वर्कर हटाएं",
-    loggedIn: "✅ लॉगिन किया गया:",
-    export: "📤 वर्कर्स एक्सपोर्ट करें",
-    csvFormat: "CSV प्रारूप: iq,name,camp,company,gender,nationality,sponsor,room",
-    madeBy: "❤️ से बनाया फैज़ान खान द्वारा"
-  },
-  ur: {
-    title: "کیئر پرو رہائش",
-    login: "لاگ ان",
-    makeCV: "سی وی بنائیں",
-    freePool: "فری پول",
-    password: "پاس ورڈ",
-    verify: "تصدیق کریں",
-    selectCamp: "کیمپ منتخب کریں",
-    showCamp: "کیمپ دکھائیں",
-    searchByIqama: "اقامہ سے ورکر تلاش کریں",
-    search: "تلاش کریں",
-    summary: "کلائنٹ / کمپنی خلاصہ",
-    filterByCompany: "کمپنی کے لحاظ سے فلٹر:",
-    total: "کل",
-    logout: "لاگ آؤٹ",
-    adminPanel: "⚙️ ایڈمن پینل",
-    addWorker: "ورکر شامل کریں",
-    deleteWorker: "ورکر حذف کریں",
-    loggedIn: "✅ کے طور پر لاگ ان ہوا:",
-    export: "📤 ورکرز ایکسپورٹ کریں",
-    csvFormat: "CSV فارمیٹ: iq,name,camp,company,gender,nationality,sponsor,room",
-    madeBy: "❤️ کے ساتھ بنایا گیا فیزان خان نے"
-  }
-};
-
-// Function to switch language instantly
-function switchLang(lang) {
-  document.querySelectorAll("[data-translate]").forEach(el => {
-    const key = el.getAttribute("data-translate");
-    el.innerText = translations[lang][key] || el.innerText;
-  });
-  localStorage.setItem("selectedLang", lang);
-}
-
-// Restore last selected language
-window.addEventListener("DOMContentLoaded", () => {
-  const lang = localStorage.getItem("selectedLang") || "en";
-  switchLang(lang);
-});
-</script>
-
-
 </script>
 </body>
 </html>
