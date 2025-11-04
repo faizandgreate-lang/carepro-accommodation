@@ -47,11 +47,30 @@
 <h1> CARE-PRO ACCOMMODATION</h1>
 
 <!-- Care-Pro Logo -->
+<!-- Breathing Logo -->
 <div style="text-align:center; margin-bottom:20px;">
   <img src="https://i.ibb.co/N0Bdr5N/Care-Pro-Logo-Jan-2025-Transparent.png"
        alt="Care-Pro Logo"
+       class="breathing-logo"
        style="height:90px; width:auto; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.2);">
 </div>
+
+<style>
+/* Breathing animation */
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1); /* 10% bigger at peak */
+  }
+}
+
+.breathing-logo {
+  animation: breathe 2s ease-in-out infinite;
+}
+</style>
+
 
 
 <!-- === Top Control Bar === -->
