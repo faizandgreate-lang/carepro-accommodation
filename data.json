@@ -4246,8 +4246,7 @@
         "AC": "33",
         "WASHING": "1",
         "SHOE RACK": "8",
-        "FIRE EXT": "8",
-        "NEW COLUMN": ""
+        "FIRE EXT": "8"
       }
     },
     "G. Bawadi": {
@@ -4268,8 +4267,7 @@
         "AC": "25",
         "WASHING": "6",
         "SHOE RACK": "7",
-        "FIRE EXT": "6",
-        "NEW COLUMN": ""
+        "FIRE EXT": "6"
       }
     },
     "Old rabwa": {
@@ -4290,8 +4288,7 @@
         "AC": "22",
         "WASHING": "",
         "SHOE RACK": "7",
-        "FIRE EXT": "4",
-        "NEW COLUMN": ""
+        "FIRE EXT": "4"
       }
     },
     "B.sultan": {
@@ -4312,8 +4309,7 @@
         "AC": "26",
         "WASHING": "2",
         "SHOE RACK": "",
-        "FIRE EXT": "3",
-        "NEW COLUMN": ""
+        "FIRE EXT": "3"
       }
     },
     "__summaryHeaders": [
@@ -4335,8 +4331,7 @@
       "AC",
       "WASHING",
       "SHOE RACK",
-      "FIRE EXT",
-      "NEW COLUMN"
+      "FIRE EXT"
     ]
   }
 }
