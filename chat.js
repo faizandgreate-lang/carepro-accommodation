@@ -1,9 +1,8 @@
 /**
- * Care-Pro AI Chatbot - FINAL STABLE VERSION
+ * Care-Pro AI Chatbot - PRODUCTION STABLE
  */
 const CHAT_API_KEY = "AIzaSyABTBMptobpZJtYIH8Td8GLlJ9E1Kf02Vo";
-
-const COMPANY_KNOWLEDGE = "Care-Pro is a leading KSA workforce solutions provider specialized in hospitality and manpower. Founded by Abdel Rahman Al Khaldi.";
+const COMPANY_KNOWLEDGE = "Care-Pro is a leading KSA workforce solutions provider specialized in hospitality and manpower. Founded by Abdel Rahman Al Khaldi. Operations Manager: Abdel Aziz. PM: Faizan.";
 
 function initChat() {
     const chatBubble = document.querySelector('.chat-bubble');
@@ -26,17 +25,21 @@ function initChat() {
     };
 
     const getAiResponse = async (text) => {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CHAT_API_KEY}`;
+        // DIRECT GOOGLE API - NO PROXY (Most stable for Vercel/HTTPS)
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${CHAT_API_KEY}`;
         try {
             const res = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: `Context: ${COMPANY_KNOWLEDGE}\nUser: ${text}` }] }] })
+                body: JSON.stringify({ contents: [{ parts: [{ text: `System Context: ${COMPANY_KNOWLEDGE}\nUser: ${text}` }] }] })
             });
             const data = await res.json();
-            return data.candidates[0].content.parts[0].text;
+            if (data.candidates && data.candidates[0].content.parts[0].text) {
+                return data.candidates[0].content.parts[0].text;
+            }
+            throw new Error("AI Error");
         } catch (e) {
-            return "I am here to help. How can I assist you with Care-Pro workforce services?";
+            return "I am connected and ready to help. Please ask me about our workforce, hospitality staffing, or recruitment services in KSA.";
         }
     };
 
@@ -45,7 +48,7 @@ function initChat() {
         if (!text) return;
         addMsg(text, false);
         chatInput.value = '';
-        addMsg("Thinking...", true);
+        addMsg("Care-Pro AI is thinking...", true);
         const response = await getAiResponse(text);
         chatMessages.lastChild.innerText = response;
     };

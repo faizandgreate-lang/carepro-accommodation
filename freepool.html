@@ -61,18 +61,17 @@
     <script src="chat.js"></script>
     <script>
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRzP7kzkSlt3M4toF34vnyxBdHgQ2J9kM0yTNb4NSL-ZsM9O8vC4M83J4uw-y-DWusEtVBYuHJ-SqMs/pub?output=csv";
-        let poolData = [];
-        let headers = [];
+        let fullPoolData = [];
+        let fullHeaders = [];
 
         async function initPool() {
             try {
-                // Try Direct Fetch (Works on Vercel)
+                // Dual connection for Desktop and Vercel
                 const res = await fetch(CSV_URL);
                 if (!res.ok) throw new Error();
                 const csv = await res.text();
                 processData(csv);
             } catch (e) {
-                // Try Proxy Fallback (Works on Desktop)
                 const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(CSV_URL);
                 const res = await fetch(proxyUrl);
                 const csv = await res.text();
@@ -86,8 +85,8 @@
                 complete: function(results) {
                     const rows = results.data;
                     if (rows.length >= 2) {
-                        headers = rows[1];
-                        poolData = rows.slice(2).filter(r => r.length > 1);
+                        fullHeaders = rows[1];
+                        fullPoolData = rows.slice(2).filter(r => r.length > 1);
                         renderAll();
                     }
                 }
@@ -95,23 +94,49 @@
         }
 
         function renderAll() {
-            document.getElementById('table-head').innerHTML = `<tr>${headers.map(h => `<th>${h || '---'}</th>`).join('')}</tr>`;
-            document.getElementById('table-body').innerHTML = poolData.map(row => `<tr>${row.map(cell => `<td>${cell || 'N/A'}</td>`).join('')}</tr>`).join('');
-            document.getElementById('name-grid').innerHTML = poolData.map((row, index) => `<div class="name-box" onclick="showDetails(${index})"><h3>${row[2] || 'Worker'}</h3><div style="margin-top:1rem; font-size:0.75rem; color:var(--primary); font-weight:700;">VIEW FULL DATA</div></div>`).join('');
+            // TABLE: Limited to Columns A to L (Indices 0-11)
+            const tableHeaders = fullHeaders.slice(0, 12);
+            document.getElementById('table-head').innerHTML = `<tr>${tableHeaders.map(h => `<th>${h || '---'}</th>`).join('')}</tr>`;
+            document.getElementById('table-body').innerHTML = fullPoolData.map(row => `<tr>${row.slice(0, 12).map(cell => `<td>${cell || 'N/A'}</td>`).join('')}</tr>`).join('');
+            
+            // DIRECTORY: Card shows Name from Column C (Index 2)
+            document.getElementById('name-grid').innerHTML = fullPoolData.map((row, index) => `
+                <div class="name-box" onclick="showDetails(${index})">
+                    <i class="fas fa-user-tie" style="font-size:2rem; color:var(--primary); margin-bottom:1rem; opacity:0.1;"></i>
+                    <h3>${row[2] || 'Worker'}</h3>
+                    <div style="margin-top:1rem; font-size:0.75rem; color:var(--primary); font-weight:700;">VIEW FULL PROFILE</div>
+                </div>
+            `).join('');
+            
             document.getElementById('table-loading').classList.add('hidden');
             document.getElementById('master-table').classList.remove('hidden');
         }
 
         window.showDetails = (index) => {
-            const row = poolData[index];
+            const row = fullPoolData[index];
             const content = document.getElementById('detail-content');
-            content.innerHTML = `<div style="text-align:center; margin-bottom:2.5rem; border-bottom:2px solid #f1f5f9; padding-bottom:1.5rem;"><img src="assets/logo.png" alt="Logo" style="height:55px; margin-bottom:1rem;"><h2 style="color:var(--text-dark); margin:0;">${row[2] || 'Profile Record'}</h2></div><div class="detail-grid">${row.map((cell, i) => `<div class="detail-item"><label>${headers[i] || 'Field'}</label><p>${cell || '---'}</p></div>`).join('')}</div>`;
+            // MODAL: Shows UNLIMITED data from ALL columns
+            content.innerHTML = `
+                <div style="text-align:center; margin-bottom:2.5rem; border-bottom:2px solid #f1f5f9; padding-bottom:1.5rem;">
+                    <img src="assets/logo.png" alt="Logo" style="height:55px; margin-bottom:1rem;">
+                    <h2 style="color:var(--primary); margin:0;">${row[2] || 'Worker Details'}</h2>
+                </div>
+                <div class="detail-grid">
+                    ${row.map((cell, i) => `
+                        <div class="detail-item">
+                            <label>${fullHeaders[i] || 'Field'}</label>
+                            <p>${cell || '---'}</p>
+                        </div>
+                    `).join('')}
+                </div>
+                <button onclick="closeDetails()" style="width:100%; margin-top:2rem; padding:1rem; background:var(--primary); color:white; border:none; border-radius:12px; font-weight:700; cursor:pointer;">CLOSE PROFILE</button>
+            `;
             document.getElementById('detail-modal').classList.remove('hidden');
         };
 
         window.exportToExcel = () => {
-            if (poolData.length === 0) { alert("Please wait for data to load..."); return; }
-            const ws = XLSX.utils.aoa_to_sheet([headers, ...poolData]);
+            if (fullPoolData.length === 0) return;
+            const ws = XLSX.utils.aoa_to_sheet([fullHeaders, ...fullPoolData]);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "FreePool");
             XLSX.writeFile(wb, "CarePro_FreePool_Data.xlsx");
