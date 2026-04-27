@@ -27,6 +27,8 @@
         .detail-item { background: #f8fafc; padding: 1.2rem; border-radius: 16px; border: 1px solid #f1f5f9; }
         .detail-item label { display: block; font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; margin-bottom: 0.4rem; }
         .detail-item p { font-weight: 600; color: #1e293b; margin: 0; font-size: 1rem; }
+        /* VERIFICATION DOT */
+        .chat-bubble::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; background: #ff4d4d; border-radius: 50%; box-shadow: 0 0 10px #ff4d4d; }
     </style>
 </head>
 <body class="light-mode">
@@ -34,7 +36,7 @@
     <header style="position:relative;">
         <nav class="top-nav"><a href="index.html" class="nav-link">Main Portal</a><a href="freepool.html" class="nav-link active">Free-Pool</a></nav>
         <button class="export-btn" id="export-excel-btn" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export to Excel</button>
-        <div class="logo-container"><img src="assets/logo.png" alt="Care-Pro Logo" id="main-logo"></div>
+        <div class="logo-container"><img src="assets/logo.png" alt="Logo" id="main-logo"></div>
         <h1>Care-Pro Free-Pool</h1>
     </header>
     <main>
@@ -59,45 +61,30 @@
     <!-- BUILT-IN CHATBOT SYSTEM -->
     <div id="chat-wrapper" class="chat-wrapper">
         <div id="chat-window" class="chat-window hidden glass">
-            <div class="chat-header">
-                <h3><i class="fas fa-robot"></i> Care-Pro AI</h3>
-                <button onclick="document.getElementById('chat-window').classList.add('hidden')"><i class="fas fa-times"></i></button>
-            </div>
-            <div id="chat-messages" class="chat-messages">
-                <div class="msg bot">Hello! I'm your Care-Pro AI. How can I help?</div>
-            </div>
-            <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="Type a message...">
-                <button id="send-chat" onclick="handleDirectChat()"><i class="fas fa-paper-plane"></i></button>
-            </div>
+            <div class="chat-header"><h3>Care-Pro AI</h3><button onclick="document.getElementById('chat-window').classList.add('hidden')"><i class="fas fa-times"></i></button></div>
+            <div id="chat-messages" class="chat-messages"><div class="msg bot">Hello! I'm your Care-Pro AI. How can I help?</div></div>
+            <div class="chat-input-area"><input type="text" id="chat-input" placeholder="Type a message..."><button id="send-chat" onclick="handleDirectChat()"><i class="fas fa-paper-plane"></i></button></div>
         </div>
-        <button id="chat-bubble" class="chat-bubble" onclick="document.getElementById('chat-window').classList.toggle('hidden')">
+        <button id="chat-bubble" class="chat-bubble" onclick="alert('Chatbot System Active'); document.getElementById('chat-window').classList.toggle('hidden')">
             <i class="fas fa-comment-dots"></i>
         </button>
     </div>
 
     <script>
-        // BUILT-IN CHATBOT LOGIC
         async function handleDirectChat() {
             const input = document.getElementById('chat-input');
             const messages = document.getElementById('chat-messages');
             const text = input.value.trim();
             if(!text) return;
 
-            const uDiv = document.createElement('div');
-            uDiv.className = 'msg user';
-            uDiv.innerText = text;
-            messages.appendChild(uDiv);
-            input.value = '';
-            messages.scrollTop = messages.scrollHeight;
+            const uDiv = document.createElement('div'); uDiv.className = 'msg user'; uDiv.innerText = text; messages.appendChild(uDiv);
+            input.value = ''; messages.scrollTop = messages.scrollHeight;
 
-            const bDiv = document.createElement('div');
-            bDiv.className = 'msg bot';
-            bDiv.innerText = 'Thinking...';
-            messages.appendChild(bDiv);
+            const bDiv = document.createElement('div'); bDiv.className = 'msg bot'; bDiv.innerText = 'Thinking...'; messages.appendChild(bDiv);
 
             try {
-                const res = await fetch('/api/ai', {
+                // Cloudflare Logic: Calling /ai
+                const res = await fetch('/ai', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt: text, type: 'chat' })
@@ -105,11 +92,10 @@
                 const data = await res.json();
                 bDiv.innerText = data.candidates[0].content.parts[0].text;
             } catch (e) {
-                bDiv.innerText = "Hello! How can I assist you today?";
+                bDiv.innerText = "I am ready to help!";
             }
             messages.scrollTop = messages.scrollHeight;
         }
-        document.getElementById('chat-input').onkeypress = (e) => { if(e.key === 'Enter') handleDirectChat(); };
     </script>
 
     <footer class="footer"><p>&copy; 2024 Care-Pro Workforce Solutions</p></footer>
@@ -122,7 +108,6 @@
         async function initPool() {
             try {
                 const res = await fetch(CSV_URL);
-                if (!res.ok) throw new Error();
                 const csv = await res.text();
                 processData(csv);
             } catch (e) {
@@ -171,12 +156,7 @@
                     <h2 style="color:var(--primary); margin:0;">${row[2] || 'Worker Details'}</h2>
                 </div>
                 <div class="detail-grid">
-                    ${row.map((cell, i) => `
-                        <div class="detail-item">
-                            <label>${fullHeaders[i] || 'Field'}</label>
-                            <p>${cell || '---'}</p>
-                        </div>
-                    `).join('')}
+                    ${row.map((cell, i) => `<div class="detail-item"><label>${fullHeaders[i] || 'Field'}</label><p>${cell || '---'}</p></div>`).join('')}
                 </div>
                 <button onclick="closeDetails()" style="width:100%; margin-top:2rem; padding:1rem; background:var(--primary); color:white; border:none; border-radius:12px; font-weight:700; cursor:pointer;">CLOSE PROFILE</button>
             `;

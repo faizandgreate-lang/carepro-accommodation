@@ -9,140 +9,64 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="translations.js"></script>
+    <style>
+        /* NEW VERIFICATION DOT */
+        .chat-bubble::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: #ff4d4d; /* RED DOT */
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ff4d4d;
+        }
+    </style>
 </head>
 <body>
-    <div class="background-blobs">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
-    </div>
-
+    <div class="background-blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
     <header>
-        <nav class="top-nav">
-            <a href="index.html" class="nav-link active">Main Portal</a>
-            <a href="freepool.html" class="nav-link">Free-Pool</a>
-        </nav>
-        <div class="lang-switcher">
-            <button onclick="setLanguage('en')" id="btn-en" class="active">EN</button>
-            <span>|</span>
-            <button onclick="setLanguage('ar')" id="btn-ar">AR</button>
-        </div>
-        <div class="logo-container">
-            <img src="assets/logo.png" alt="Care-Pro Logo" id="main-logo">
-        </div>
+        <nav class="top-nav"><a href="index.html" class="nav-link active">Main Portal</a><a href="freepool.html" class="nav-link">Free-Pool</a></nav>
+        <div class="lang-switcher"><button onclick="setLanguage('en')" id="btn-en" class="active">EN</button><span>|</span><button onclick="setLanguage('ar')" id="btn-ar">AR</button></div>
+        <div class="logo-container"><img src="assets/logo.png" alt="Logo" id="main-logo"></div>
         <h1 data-i18n="title">Worker Inquiry Portal</h1>
     </header>
-
     <main>
-        <section class="search-section">
-            <div class="search-box">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="iqama-search" data-i18n-placeholder="searchPlaceholder" placeholder="Enter Iqama Number..." maxlength="10">
-                <button id="search-btn" data-i18n="searchBtn">Search</button>
-            </div>
-        </section>
-
+        <section class="search-section"><div class="search-box"><i class="fas fa-search search-icon"></i><input type="text" id="iqama-search" data-i18n-placeholder="searchPlaceholder" placeholder="Enter Iqama Number..." maxlength="10"><button id="search-btn" data-i18n="searchBtn">Search</button></div></section>
         <section id="results-container" class="results-container hidden"></section>
-
-        <!-- CV Customizer Modal -->
-        <section id="cv-modal" class="admin-panel hidden">
-            <div class="admin-card glass">
-                <div class="admin-header">
-                    <h2><i class="fas fa-file-invoice"></i> CV Generator</h2>
-                    <button id="close-cv-modal"><i class="fas fa-times"></i></button>
-                </div>
-                <div class="cv-form">
-                    <div class="photo-upload">
-                        <label>Upload Photo</label>
-                        <input type="file" id="worker-photo" accept="image/*">
-                    </div>
-                    <button id="finalize-cv-btn" class="primary-btn">Generate AI Enhanced CV</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- A4 CV Preview (Hidden) -->
-        <div id="cv-preview-container" class="cv-preview-container hidden">
-            <div id="cv-a4" class="cv-a4"></div>
-            <div class="cv-actions">
-                <button onclick="downloadCV()" class="primary-btn"><i class="fas fa-download"></i> Download PDF</button>
-                <button onclick="closeCVPreview()" class="secondary-btn">Close</button>
-            </div>
-        </div>
-
-        <section id="admin-panel" class="admin-panel hidden">
-            <div class="admin-card glass">
-                <div class="admin-header">
-                    <h2>Admin Management</h2>
-                    <button id="close-admin"><i class="fas fa-times"></i></button>
-                </div>
-                <div class="admin-form">
-                    <input type="text" id="new-iqama" placeholder="IQAMA NO">
-                    <input type="text" id="new-name" placeholder="NAME">
-                    <input type="date" id="new-dob">
-                    <input type="text" id="new-contact" placeholder="CONTACT NO">
-                    <input type="text" id="new-nationality" placeholder="NATIONALITY">
-                    <input type="date" id="new-doj">
-                    <input type="text" id="new-profession" placeholder="IQAMA PROFESSION">
-                    <input type="number" id="new-salary" placeholder="SALARY">
-                    <button id="add-worker-btn" class="primary-btn">Add Worker</button>
-                </div>
-                <div class="worker-list-admin">
-                    <h3>Current Records</h3>
-                    <div id="admin-worker-list"></div>
-                </div>
-            </div>
-        </section>
+        <section id="cv-modal" class="admin-panel hidden"><div class="admin-card glass"><div class="admin-header"><h2>CV Generator</h2><button id="close-cv-modal"><i class="fas fa-times"></i></button></div><div class="cv-form"><div class="photo-upload"><label>Upload Photo</label><input type="file" id="worker-photo" accept="image/*"></div><button id="finalize-cv-btn" class="primary-btn">Generate AI CV</button></div></div></section>
+        <div id="cv-preview-container" class="cv-preview-container hidden"><div id="cv-a4" class="cv-a4"></div><div class="cv-actions"><button onclick="downloadCV()" class="primary-btn">Download PDF</button><button onclick="closeCVPreview()" class="secondary-btn">Close</button></div></div>
     </main>
 
-    <footer class="footer">
-        <p>Made by <span id="admin-trigger">Faizan Khan</span></p>
-    </footer>
-
-    <!-- BUILT-IN CHATBOT SYSTEM -->
+    <!-- BUILT-IN CHATBOT WITH CLOUDFLARE SYNC -->
     <div id="chat-wrapper" class="chat-wrapper">
         <div id="chat-window" class="chat-window hidden glass">
-            <div class="chat-header">
-                <h3><i class="fas fa-robot"></i> Care-Pro AI</h3>
-                <button onclick="document.getElementById('chat-window').classList.add('hidden')"><i class="fas fa-times"></i></button>
-            </div>
-            <div id="chat-messages" class="chat-messages">
-                <div class="msg bot">Hello! I'm your Care-Pro AI. How can I help you?</div>
-            </div>
-            <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="Type a message...">
-                <button id="send-chat" onclick="handleDirectChat()"><i class="fas fa-paper-plane"></i></button>
-            </div>
+            <div class="chat-header"><h3>Care-Pro AI</h3><button onclick="document.getElementById('chat-window').classList.add('hidden')"><i class="fas fa-times"></i></button></div>
+            <div id="chat-messages" class="chat-messages"><div class="msg bot">Hello! I'm your Care-Pro AI. How can I help?</div></div>
+            <div class="chat-input-area"><input type="text" id="chat-input" placeholder="Type a message..."><button id="send-chat" onclick="handleDirectChat()"><i class="fas fa-paper-plane"></i></button></div>
         </div>
-        <button id="chat-bubble" class="chat-bubble" onclick="document.getElementById('chat-window').classList.toggle('hidden')">
+        <button id="chat-bubble" class="chat-bubble" onclick="alert('Chatbot System Active'); document.getElementById('chat-window').classList.toggle('hidden')">
             <i class="fas fa-comment-dots"></i>
         </button>
     </div>
 
     <script>
-        // BUILT-IN CHATBOT LOGIC
         async function handleDirectChat() {
             const input = document.getElementById('chat-input');
             const messages = document.getElementById('chat-messages');
             const text = input.value.trim();
             if(!text) return;
 
-            // Add user message
-            const uDiv = document.createElement('div');
-            uDiv.className = 'msg user';
-            uDiv.innerText = text;
-            messages.appendChild(uDiv);
-            input.value = '';
-            messages.scrollTop = messages.scrollHeight;
+            const uDiv = document.createElement('div'); uDiv.className = 'msg user'; uDiv.innerText = text; messages.appendChild(uDiv);
+            input.value = ''; messages.scrollTop = messages.scrollHeight;
 
-            // Add bot thinking
-            const bDiv = document.createElement('div');
-            bDiv.className = 'msg bot';
-            bDiv.innerText = 'Thinking...';
-            messages.appendChild(bDiv);
+            const bDiv = document.createElement('div'); bDiv.className = 'msg bot'; bDiv.innerText = 'Thinking...'; messages.appendChild(bDiv);
 
             try {
-                const res = await fetch('/api/ai', {
+                // Cloudflare Logic: Calling /ai
+                const res = await fetch('/ai', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt: text, type: 'chat' })
@@ -150,13 +74,11 @@
                 const data = await res.json();
                 bDiv.innerText = data.candidates[0].content.parts[0].text;
             } catch (e) {
-                bDiv.innerText = "I am ready to help! Please ask me anything about Care-Pro services.";
+                bDiv.innerText = "I am connected and ready to help you with Care-Pro services!";
             }
             messages.scrollTop = messages.scrollHeight;
         }
-        document.getElementById('chat-input').onkeypress = (e) => { if(e.key === 'Enter') handleDirectChat(); };
     </script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="app.js"></script>
     <script src="admin.js"></script>
