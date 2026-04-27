@@ -430,7 +430,7 @@ main {
     position: fixed;
     bottom: 2rem;
     left: 2rem;
-    z-index: 1001;
+    z-index: 9999; /* HIGHEST Z-INDEX */
 }
 
 .chat-bubble {
