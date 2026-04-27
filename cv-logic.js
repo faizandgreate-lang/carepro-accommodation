@@ -1,8 +1,6 @@
 /** 
- * Care-Pro CV Generator - PREMIUM 3-KEY EDITION
+ * Care-Pro CV Generator - VERCEL BRIDGE EDITION
  */
-const CV_API_KEY = "AIzaSyAI_4CQ6hUZd36x6AvYyHT6Z-nb2t4pyaw"; // NEW 3RD KEY
-
 const cvModal = document.getElementById('cv-modal');
 const closeCvModalBtn = document.getElementById('close-cv-modal');
 const finalizeCvBtn = document.getElementById('finalize-cv-btn');
@@ -36,17 +34,17 @@ window.openCVModal = () => { if (cvModal) cvModal.classList.remove('hidden'); };
 if (closeCvModalBtn) closeCvModalBtn.addEventListener('click', () => { cvModal.classList.add('hidden'); });
 
 const askGeminiForCV = async (prompt) => {
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${CV_API_KEY}`;
     try {
-        const res = await fetch(url, {
+        // Calling our secure Vercel Bridge
+        const res = await fetch('/api/ai', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            body: JSON.stringify({ prompt, type: 'cv' })
         });
         const data = await res.json();
         return data.candidates[0].content.parts[0].text;
     } catch (e) {
-        return "AI is ready. Please ensure you are viewing this on your live Vercel URL for the AI to connect.";
+        return "[SUMMARY]\nAI Bridge Connection failed. Please ensure the 'api' folder is uploaded.\n[ROLES]\n- Please retry.";
     }
 };
 
@@ -58,17 +56,17 @@ finalizeCvBtn.addEventListener('click', async () => {
     finalizeCvBtn.disabled = true;
 
     const prompt = `
-        You are an Elite Executive CV Writer. 
-        Create a professional CV for: ${worker.NAME}
+        Executive CV Writer. 
+        Create professional CV for: ${worker.NAME}
         Role: ${worker.EXPERIENCE || worker['IQAMA PROFESHION']}
         KSA Service: ${worker['YEARS EXPERINCE IN KSA']} Years
         Location: ${worker['EXPERIENCE PLACE']}
         
-        Format your response exactly with these markers:
+        Format:
         [SUMMARY]
-        Write 6 professional sentences about his career.
+        6 professional sentences.
         [ROLES]
-        Write 8 detailed bullet points for his job.
+        8 detailed bullet points.
     `;
 
     const aiContent = await askGeminiForCV(prompt);
@@ -103,7 +101,7 @@ finalizeCvBtn.addEventListener('click', async () => {
         </head>
         <body>
             <div class="actions">
-                <button onclick="downloadPDF()">Download PDF</button>
+                <button onclick="downloadPDF()">Download PDF Document</button>
                 <button onclick="window.print()" style="background:#64748b;">Print</button>
             </div>
             <div id="cv-content" class="cv-a4">
@@ -126,7 +124,7 @@ finalizeCvBtn.addEventListener('click', async () => {
                     <div class="cv-right-col">
                         <div class="cv-section-title">Professional Summary</div>
                         <div class="cv-ai-content" style="margin-bottom: 3rem;">${summary}</div>
-                        <div class="cv-section-title">Detailed Roles</div>
+                        <div class="cv-section-title">Detailed Roles and Responsibilities</div>
                         <div class="cv-ai-content">${roles}</div>
                     </div>
                 </div>
