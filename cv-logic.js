@@ -1,5 +1,5 @@
 /** 
- * Care-Pro CV Generator Logic - PERMANENT LIVE EDITION
+ * Care-Pro CV Generator Logic - SMART DUAL-MODE EDITION
  */
 const CV_API_KEY = "AIzaSyAzZEkBhqPijdUsDksKRskVqfRTHoaPJuc";
 
@@ -35,23 +35,24 @@ window.openCVModal = () => { cvModal.classList.remove('hidden'); };
 closeCvModalBtn.addEventListener('click', () => { cvModal.classList.add('hidden'); });
 
 const askGeminiForCV = async (prompt) => {
-    // DIRECT GOOGLE API CALL - Permanent & Stable for Live Sites
     try {
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CV_API_KEY}`;
+        let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CV_API_KEY}`;
+        
+        // SMART DUAL-MODE: If on local desktop, use proxy
+        if (window.location.protocol === 'file:') {
+            apiUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(apiUrl);
+        }
+
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
         });
 
-        if (response.ok) {
-            const data = await response.json();
-            return data.candidates[0].content.parts[0].text;
-        } else {
-            throw new Error("API Error");
-        }
+        const data = await response.json();
+        return data.candidates[0].content.parts[0].text;
     } catch (e) {
-        return "AI CONNECTION ERROR: To see the AI work, please upload this folder to Netlify or use a 'Live Server'. (The code is correct but browsers block AI from local folders).";
+        return "SUMMARY\nConnection Error. Please ensure you are connected to the internet.\nROLES\n- AI connection failed. Please check internet.";
     }
 };
 
@@ -76,8 +77,10 @@ finalizeCvBtn.addEventListener('click', async () => {
     `;
 
     const aiContent = await askGeminiForCV(prompt);
-    const summary = aiContent.includes('SUMMARY') ? aiContent.split('ROLES')[0].replace('SUMMARY', '').trim() : aiContent;
-    const roles = aiContent.includes('ROLES') ? aiContent.split('ROLES')[1].trim() : "AI roles will appear here once live.";
+    
+    // Improved Parsing
+    const summary = aiContent.includes('ROLES') ? aiContent.split('ROLES')[0].replace('SUMMARY', '').trim() : aiContent;
+    const roles = aiContent.includes('ROLES') ? aiContent.split('ROLES')[1].trim() : "AI roles generation completed.";
 
     const cvHtml = `
         <!DOCTYPE html>

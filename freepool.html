@@ -14,12 +14,45 @@
         th { text-align: left; background: #f8fafc; padding: 1rem; color: var(--primary); font-size: 0.8rem; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; }
         td { padding: 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; color: #475569; }
         tr:hover { background: #f1f7ff; }
-        .name-directory { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; width: 100%; max-width: 1200px; }
-        .name-box { background: white; border: 1px solid #e2e8f0; padding: 1.5rem; border-radius: 16px; text-align: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-        .name-box:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 25px rgba(0, 102, 204, 0.1); }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 3000; }
-        .detail-card { background: white; width: 90%; max-width: 600px; padding: 2.5rem; border-radius: 24px; position: relative; max-height: 90vh; overflow-y: auto; }
-        .sync-warning { background: #fffbeb; border: 1px solid #fef3c7; color: #92400e; padding: 1rem; border-radius: 12px; margin-bottom: 2rem; font-size: 0.9rem; text-align: center; }
+
+        .name-directory { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+            gap: 1.5rem; 
+            width: 100%; 
+            max-width: 1200px; 
+        }
+        .name-box { 
+            background: white; 
+            border: 1px solid #e2e8f0; 
+            height: 180px; /* Fixed Uniform Size */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem; 
+            border-radius: 24px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02); 
+        }
+        .name-box:hover { 
+            transform: translateY(-8px); 
+            border-color: var(--primary); 
+            box-shadow: 0 20px 40px rgba(0, 102, 204, 0.1); 
+        }
+        .name-box i { font-size: 2rem; color: var(--primary); margin-bottom: 1rem; opacity: 0.5; }
+        .name-box h3 { font-size: 1.1rem; color: var(--text-dark); margin: 0; font-weight: 700; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); display: flex; justify-content: center; align-items: center; z-index: 3000; }
+        .detail-card { background: white; width: 90%; max-width: 700px; padding: 3rem; border-radius: 32px; position: relative; max-height: 85vh; overflow-y: auto; box-shadow: 0 30px 60px rgba(0,0,0,0.2); }
+        .detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 2rem; }
+        .detail-item { background: #f8fafc; padding: 1.2rem; border-radius: 16px; border: 1px solid #f1f5f9; }
+        .detail-item label { display: block; font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; margin-bottom: 0.4rem; letter-spacing: 0.5px; }
+        .detail-item p { font-weight: 600; color: #1e293b; margin: 0; font-size: 1rem; }
+        
+        .sync-warning { background: #fffbeb; border: 1px solid #fef3c7; color: #92400e; padding: 1.2rem; border-radius: 16px; margin-bottom: 2rem; font-size: 0.95rem; text-align: center; box-shadow: 0 4px 12px rgba(251, 191, 36, 0.1); }
     </style>
 </head>
 <body class="light-mode">
@@ -31,37 +64,39 @@
             <a href="freepool.html" class="nav-link active">Free-Pool</a>
         </nav>
         <div class="logo-container"><img src="assets/logo.png" alt="Care-Pro Logo" id="main-logo"></div>
-        <h1>Free-Pool Master Directory</h1>
-        <p style="color:var(--text-dim); margin-top:0.5rem;">Secure Live Sync (A-L Columns)</p>
+        <h1>Care-Pro Free-Pool</h1>
+        <p style="color:var(--text-dim); margin-top:0.5rem;">Verified Available Human Capital</p>
     </header>
 
     <main>
         <div id="desktop-warning" class="sync-warning">
-            <strong>Desktop Note:</strong> Browsers block data when running from a folder. 
-            <button onclick="loadSampleData()" style="background:var(--primary); color:white; border:none; padding:0.5rem 1rem; border-radius:8px; margin-left:1rem; cursor:pointer;">Show Layout Preview</button>
-            <p style="margin-top:0.5rem; font-size:0.8rem;">The AI Sync will work 100% once you upload this folder to Vercel.</p>
+            <i class="fas fa-info-circle"></i> <strong>Note:</strong> Browsers block live sync from local folders.
+            <button onclick="loadSampleData()" style="background:var(--primary); color:white; border:none; padding:0.6rem 1.2rem; border-radius:12px; margin-left:1rem; cursor:pointer; font-weight:600;">Preview My Layout</button>
         </div>
 
         <section class="freepool-table-container">
-            <h2 style="margin-bottom: 1.5rem; font-size: 1.2rem; color: var(--text-dark);">1. Full Worker List (A-L)</h2>
-            <div id="table-loading" class="ai-loading" style="text-align:center; padding:2rem;">Connecting to Free-Pool Database...</div>
+            <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem; color: var(--text-dark); letter-spacing: -0.5px;">WORKER LIST</h2>
+            <div id="table-loading" class="ai-loading" style="text-align:center; padding:3rem;">Syncing with Google Sheet...</div>
             <table id="master-table" class="hidden">
                 <thead id="table-head"></thead>
                 <tbody id="table-body"></tbody>
             </table>
         </section>
 
-        <section style="width:100%; max-width:1200px;">
-            <h2 style="margin-bottom: 1rem; font-size: 1.2rem; color: var(--text-dark);">2. Name Directory Grid</h2>
+        <section style="width:100%; max-width:1200px; padding-bottom:5rem;">
+            <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem; color: var(--text-dark); letter-spacing: -0.5px;">DIRECTORY</h2>
             <div id="name-grid" class="name-directory"></div>
         </section>
     </main>
 
     <div id="detail-modal" class="modal-overlay hidden">
-        <div class="detail-card"><div id="detail-content"></div></div>
+        <div class="detail-card">
+            <button onclick="closeDetails()" style="position:absolute; top:1.5rem; right:1.5rem; border:none; background:#f1f5f9; width:40px; height:40px; border-radius:50%; cursor:pointer; font-size:1.2rem; color:#64748b; transition:all 0.3s;">&times;</button>
+            <div id="detail-content"></div>
+        </div>
     </div>
 
-    <footer class="footer"><p>Care-Pro Workforce Solutions | Free-Pool System</p></footer>
+    <footer class="footer"><p>&copy; 2024 Care-Pro Workforce Solutions | Global Operations</p></footer>
 
     <script>
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRzP7kzkSlt3M4toF34vnyxBdHgQ2J9kM0yTNb4NSL-ZsM9O8vC4M83J4uw-y-DWusEtVBYuHJ-SqMs/pub?output=csv";
@@ -69,37 +104,26 @@
         let headers = [];
 
         async function initPool() {
-            // Direct fetch (Works on Vercel/Servers)
             try {
-                const res = await fetch(CSV_URL);
-                if (res.ok) {
-                    const csv = await res.text();
-                    parseAndRender(csv);
-                } else {
-                    // Fallback for Desktop (Proxy)
-                    const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(CSV_URL);
-                    const proxyRes = await fetch(proxyUrl);
-                    const csv = await proxyRes.text();
-                    parseAndRender(csv);
-                }
-            } catch (e) {
-                console.log("Waiting for Vercel deployment or manual preview.");
-            }
-        }
-
-        function parseAndRender(csv) {
-            Papa.parse(csv, {
-                header: false,
-                complete: function(results) {
-                    const rows = results.data;
-                    if (rows.length > 0) {
-                        headers = rows[0].slice(0, 12);
-                        poolData = rows.slice(1).filter(r => r.length > 1).map(r => r.slice(0, 12));
-                        renderAll();
-                        document.getElementById('desktop-warning').classList.add('hidden');
+                const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(CSV_URL);
+                const res = await fetch(proxyUrl);
+                const csv = await res.text();
+                
+                Papa.parse(csv, {
+                    header: false,
+                    complete: function(results) {
+                        const rows = results.data;
+                        if (rows.length >= 2) {
+                            // HEADING IS ON ROW 2 (Index 1)
+                            headers = rows[1].slice(0, 12);
+                            // DATA STARTS FROM ROW 3 (Index 2)
+                            poolData = rows.slice(2).filter(r => r.length > 1).map(r => r.slice(0, 12));
+                            renderAll();
+                            document.getElementById('desktop-warning').classList.add('hidden');
+                        }
                     }
-                }
-            });
+                });
+            } catch (e) { console.log("Local sync blocked. Use Preview."); }
         }
 
         function renderAll() {
@@ -107,8 +131,9 @@
             document.getElementById('table-body').innerHTML = poolData.map(row => `<tr>${row.map(cell => `<td>${cell || 'N/A'}</td>`).join('')}</tr>`).join('');
             document.getElementById('name-grid').innerHTML = poolData.map((row, index) => `
                 <div class="name-box" onclick="showDetails(${index})">
-                    <h3>${row[2] || row[1] || 'Record'}</h3>
-                    <p style="font-size:0.7rem; color:var(--primary); margin-top:0.5rem; font-weight:700;">VIEW PROFILE</p>
+                    <i class="fas fa-user-tie"></i>
+                    <h3>${row[2] || 'Worker'}</h3>
+                    <div style="margin-top:1rem; font-size:0.75rem; color:var(--primary); font-weight:700; background:rgba(0,102,204,0.05); padding:0.4rem 1rem; border-radius:20px;">VIEW FULL DATA</div>
                 </div>
             `).join('');
             document.getElementById('table-loading').classList.add('hidden');
@@ -116,28 +141,32 @@
         }
 
         window.loadSampleData = () => {
-            headers = ["ID", "DATE", "NAME", "NATIONALITY", "IQAMA", "ROLE", "EXP", "LOCATION", "SALARY", "STATUS", "CONTACT", "NOTES"];
+            headers = ["ID", "REG DATE", "FULL NAME", "NATIONALITY", "IQAMA NO", "EXPERIENCE", "KSA YEARS", "LOCATION", "SALARY", "STATUS", "CONTACT", "REMARKS"];
             poolData = [
-                ["FP-101", "2024-04-01", "BAIJID SOROJ", "BGD", "2477417485", "KITCHEN HELPER", "4.7 Yrs", "SHANGRILA", "1800", "AVAILABLE", "551234567", "Excellent worker"],
-                ["FP-102", "2024-04-02", "HAPIRI SALIHON", "PHL", "2532960503", "WAITER", "3.8 Yrs", "ELAF GALARIA", "2200", "AVAILABLE", "559876543", "Hospitality expert"]
+                ["FP-001", "2024-01-10", "BAIJID SOROJ", "BGD", "2477417485", "KITCHEN HELPER", "4.7", "SHANGRILA", "1800", "ACTIVE", "551234567", "Highly Recommended"],
+                ["FP-002", "2024-02-15", "HAPIRI SALIHON", "PHL", "2532960503", "WAITER", "3.8", "ELAF GALARIA", "2200", "ACTIVE", "559876543", "Hospitality Pro"]
             ];
             renderAll();
-            document.getElementById('desktop-warning').innerHTML = "<strong>Preview Mode Active:</strong> This is how your data will look once you upload to Vercel. <a href='#' onclick='location.reload()'>Retry Live Sync</a>";
+            document.getElementById('desktop-warning').innerHTML = "<strong>Preview Mode Active:</strong> This is how your data from Row 3 onwards will look. <a href='#' onclick='location.reload()'>Retry Live Sync</a>";
         };
 
         window.showDetails = (index) => {
             const row = poolData[index];
             const content = document.getElementById('detail-content');
             content.innerHTML = `
-                <div style="text-align:center; margin-bottom:2rem; border-bottom:2px solid var(--primary); padding-bottom:1rem;">
-                    <img src="assets/logo.png" alt="Logo" style="height:50px; margin-bottom:1rem;">
-                    <h2 style="color:var(--primary); margin:0;">${row[2] || 'Worker Details'}</h2>
-                    <p style="font-size:0.8rem; color:#94a3b8; margin-top:0.5rem;">FREE-POOL DATABASE RECORD</p>
+                <div style="text-align:center; margin-bottom:2.5rem; border-bottom:2px solid #f1f5f9; padding-bottom:1.5rem;">
+                    <img src="assets/logo.png" alt="Logo" style="height:55px; margin-bottom:1rem;">
+                    <h2 style="color:var(--text-dark); margin:0; font-size:1.8rem; letter-spacing:-1px;">${row[2] || 'Profile Record'}</h2>
+                    <p style="font-size:0.85rem; color:var(--primary); margin-top:0.5rem; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Verified Workforce Detail</p>
                 </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
-                    ${row.map((cell, i) => `<div class="detail-field"><label style="font-size:0.7rem; color:#94a3b8; display:block; text-transform:uppercase; font-weight:700;">${headers[i] || 'Field'}</label><p style="font-weight:600; margin:0.3rem 0 0 0; color:#1e293b;">${cell || '---'}</p></div>`).join('')}
+                <div class="detail-grid">
+                    ${row.map((cell, i) => `
+                        <div class="detail-item">
+                            <label>${headers[i] || 'Field ' + (i+1)}</label>
+                            <p>${cell || '---'}</p>
+                        </div>
+                    `).join('')}
                 </div>
-                <button onclick="closeDetails()" style="width:100%; margin-top:2rem; padding:1rem; background:var(--primary); color:white; border:none; border-radius:12px; font-weight:700; cursor:pointer;">CLOSE PROFILE</button>
             `;
             document.getElementById('detail-modal').classList.remove('hidden');
         };
