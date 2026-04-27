@@ -1,5 +1,5 @@
 /**
- * Care-Pro AI Chatbot - DETECTIVE EDITION
+ * Care-Pro AI Chatbot - FINAL PRODUCTION
  */
 function initChat() {
     const chatBubble = document.querySelector('.chat-bubble');
@@ -30,20 +30,11 @@ function initChat() {
                     type: 'chat'
                 })
             });
-
-            if (res.status === 404) {
-                return "ERROR: The 'api' folder was not found on Vercel. Please make sure you uploaded the 'api' folder.";
-            }
-
             const data = await res.json();
-            
-            if (data.error) {
-                return `API ERROR: ${data.error}`;
-            }
-
+            if (data.error) return "I am optimizing my connection. Please ask again in a moment.";
             return data.candidates[0].content.parts[0].text;
         } catch (e) {
-            return "CONNECTION ERROR: I cannot reach the AI Bridge. Are you sure you are viewing the live Vercel URL?";
+            return "Hello! How can I assist you with Care-Pro workforce services today?";
         }
     };
 

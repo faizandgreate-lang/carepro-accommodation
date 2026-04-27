@@ -12,11 +12,10 @@ export default async function handler(req, res) {
         "AIzaSyAzZEkBhqPijdUsDksKRskVqfRTHoaPJuc"
     ];
 
-    // Using the 4th Key for Chat, 3rd Key for CV
     const activeKey = type === 'cv' ? KEYS[1] : KEYS[2];
 
-    // UPDATED TO v1 FOR MAXIMUM COMPATIBILITY
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${activeKey}`;
+    // UPDATED TO LATEST MODEL STRING
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${activeKey}`;
 
     try {
         const response = await fetch(url, {
@@ -35,6 +34,6 @@ export default async function handler(req, res) {
 
         res.status(200).json(data);
     } catch (error) {
-        res.status(500).json({ error: 'Bridge Connection Error. Please try again.' });
+        res.status(500).json({ error: 'Bridge Connection Error. Please retry.' });
     }
 }

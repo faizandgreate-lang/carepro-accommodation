@@ -444,6 +444,11 @@ main {
     cursor: pointer;
     box-shadow: 0 10px 20px rgba(0, 102, 204, 0.3);
     transition: transform 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10000 !important;
 }
 
 .chat-bubble:hover {
