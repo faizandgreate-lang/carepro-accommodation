@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <!-- CSV Parser -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="translations.js"></script>
 </head>
@@ -43,9 +42,7 @@
             </div>
         </section>
 
-        <section id="results-container" class="results-container hidden">
-            <!-- Worker Card with CV button will be injected here -->
-        </section>
+        <section id="results-container" class="results-container hidden"></section>
 
         <!-- CV Customizer Modal -->
         <section id="cv-modal" class="admin-panel hidden">
@@ -66,9 +63,7 @@
 
         <!-- A4 CV Preview (Hidden) -->
         <div id="cv-preview-container" class="cv-preview-container hidden">
-            <div id="cv-a4" class="cv-a4">
-                <!-- AI Content will be injected here -->
-            </div>
+            <div id="cv-a4" class="cv-a4"></div>
             <div class="cv-actions">
                 <button onclick="downloadCV()" class="primary-btn"><i class="fas fa-download"></i> Download PDF</button>
                 <button onclick="closeCVPreview()" class="secondary-btn">Close</button>
@@ -84,19 +79,17 @@
                 <div class="admin-form">
                     <input type="text" id="new-iqama" placeholder="IQAMA NO">
                     <input type="text" id="new-name" placeholder="NAME">
-                    <input type="date" id="new-dob" placeholder="DOB">
+                    <input type="date" id="new-dob">
                     <input type="text" id="new-contact" placeholder="CONTACT NO">
                     <input type="text" id="new-nationality" placeholder="NATIONALITY">
-                    <input type="date" id="new-doj" placeholder="DOJ">
+                    <input type="date" id="new-doj">
                     <input type="text" id="new-profession" placeholder="IQAMA PROFESSION">
                     <input type="number" id="new-salary" placeholder="SALARY">
                     <button id="add-worker-btn" class="primary-btn">Add Worker</button>
                 </div>
                 <div class="worker-list-admin">
                     <h3>Current Records</h3>
-                    <div id="admin-worker-list">
-                        <!-- List of workers with delete buttons -->
-                    </div>
+                    <div id="admin-worker-list"></div>
                 </div>
             </div>
         </section>
@@ -106,27 +99,19 @@
         <p>Made by <span id="admin-trigger">Faizan Khan</span></p>
     </footer>
 
-    <a href="https://khan-linux-aios.com" target="_blank" class="lightbulb-btn" id="lightbulb">
-        <i class="fas fa-lightbulb"></i>
-    </a>
-
-    <!-- Firebase Scripts (Placeholder) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    
-    <!-- Chatbot UI -->
+    <!-- BUILT-IN CHATBOT SYSTEM -->
     <div id="chat-wrapper" class="chat-wrapper">
         <div id="chat-window" class="chat-window hidden glass">
             <div class="chat-header">
                 <h3><i class="fas fa-robot"></i> Care-Pro AI</h3>
-                <button id="close-chat"><i class="fas fa-times"></i></button>
+                <button onclick="document.getElementById('chat-window').classList.add('hidden')"><i class="fas fa-times"></i></button>
             </div>
             <div id="chat-messages" class="chat-messages">
-                <div class="msg bot">Hello! I'm your Care-Pro Assistant. How can I help you today?</div>
+                <div class="msg bot">Hello! I'm your Care-Pro AI. How can I help you?</div>
             </div>
             <div class="chat-input-area">
                 <input type="text" id="chat-input" placeholder="Type a message...">
-                <button id="send-chat"><i class="fas fa-paper-plane"></i></button>
+                <button id="send-chat" onclick="handleDirectChat()"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
         <button id="chat-bubble" class="chat-bubble" onclick="document.getElementById('chat-window').classList.toggle('hidden')">
@@ -134,10 +119,47 @@
         </button>
     </div>
 
+    <script>
+        // BUILT-IN CHATBOT LOGIC
+        async function handleDirectChat() {
+            const input = document.getElementById('chat-input');
+            const messages = document.getElementById('chat-messages');
+            const text = input.value.trim();
+            if(!text) return;
+
+            // Add user message
+            const uDiv = document.createElement('div');
+            uDiv.className = 'msg user';
+            uDiv.innerText = text;
+            messages.appendChild(uDiv);
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+
+            // Add bot thinking
+            const bDiv = document.createElement('div');
+            bDiv.className = 'msg bot';
+            bDiv.innerText = 'Thinking...';
+            messages.appendChild(bDiv);
+
+            try {
+                const res = await fetch('/api/ai', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: text, type: 'chat' })
+                });
+                const data = await res.json();
+                bDiv.innerText = data.candidates[0].content.parts[0].text;
+            } catch (e) {
+                bDiv.innerText = "I am ready to help! Please ask me anything about Care-Pro services.";
+            }
+            messages.scrollTop = messages.scrollHeight;
+        }
+        document.getElementById('chat-input').onkeypress = (e) => { if(e.key === 'Enter') handleDirectChat(); };
+    </script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="app.js"></script>
     <script src="admin.js"></script>
-    <script src="chat.js"></script>
     <script src="cv-logic.js"></script>
 </body>
 </html>
