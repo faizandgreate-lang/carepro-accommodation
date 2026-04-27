@@ -1,5 +1,5 @@
 /**
- * Care-Pro AI Chatbot - VERCEL BRIDGE EDITION
+ * Care-Pro AI Chatbot - DETECTIVE EDITION
  */
 function initChat() {
     const chatBubble = document.querySelector('.chat-bubble');
@@ -22,19 +22,28 @@ function initChat() {
 
     const getAiResponse = async (text) => {
         try {
-            // Calling our secure Vercel Bridge
             const res = await fetch('/api/ai', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    prompt: `You are Care-Pro AI. Help the user: ${text}`,
+                    prompt: `User says: ${text}`,
                     type: 'chat'
                 })
             });
+
+            if (res.status === 404) {
+                return "ERROR: The 'api' folder was not found on Vercel. Please make sure you uploaded the 'api' folder.";
+            }
+
             const data = await res.json();
+            
+            if (data.error) {
+                return `API ERROR: ${data.error}`;
+            }
+
             return data.candidates[0].content.parts[0].text;
         } catch (e) {
-            return "I am here to help. How can I assist you with Care-Pro workforce services?";
+            return "CONNECTION ERROR: I cannot reach the AI Bridge. Are you sure you are viewing the live Vercel URL?";
         }
     };
 
